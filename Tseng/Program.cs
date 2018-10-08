@@ -303,6 +303,7 @@ namespace Tseng
 
         private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseKestrel(opts => opts.ListenAnyIP(5000))
                 .UseStartup<Startup>();
     }
 }
