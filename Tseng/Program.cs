@@ -131,7 +131,26 @@ namespace Tseng
 
         private static void StartMonitoringGame()
         {
-            FF7 = Process.GetProcessesByName("ff7_en").FirstOrDefault();
+            var firstRun = true;
+            while (FF7 is null)
+            {
+                if (!firstRun)
+                {
+                    Console.WriteLine("Could not locate FF7. Is the game running?");
+                    Console.WriteLine("Press enter key to try again, or input process name if different to normal (Eg. ff7_en):");
+                    var process = Console.ReadLine().Trim();
+                    if (!string.IsNullOrWhiteSpace(process))
+                    {
+                        FF7 = Process.GetProcessesByName(process).FirstOrDefault();
+                    }
+                }
+                if (FF7 is null) FF7 = Process.GetProcessesByName("ff7_en").FirstOrDefault();
+                if (FF7 is null) FF7 = Process.GetProcessesByName("ff7").FirstOrDefault();
+                firstRun = false;
+            }
+
+            Console.WriteLine($"Located FF7 process {FF7.ProcessName}");
+
             Timer = new Timer(1000);
             Timer.Elapsed += Timer_Elapsed;
             Timer.AutoReset = true;
@@ -175,18 +194,23 @@ namespace Tseng
                 } while (!int.TryParse(Console.ReadLine().Trim(), out choice) || choice <= 0 || choice > dataDirectories.Length);
                 selectedData = dataDirectories[choice - 1];
 
-                // Only need to load the base set if there's more than one option available.
-                MergeData(Path.Combine("Data", "default"));
             }
             else
             {
                 selectedData = dataDirectories.First();
             }
-            MergeData(selectedData.FullName);
+
+            if (!selectedData.Name.Equals("default", StringComparison.InvariantCultureIgnoreCase))
+            {
+                // Only need to load the base set if there's more than one option available.
+                MergeData(Path.Combine("Data", "default"));
+            }
+            MergeData(Path.Combine("Data", selectedData.Name));
         }
 
         private static void MergeData(string path)
         {
+            Console.WriteLine($"Loading databases at {path}");
             if (File.Exists(Path.Combine(path, "materia.json")))
             {
                 using (var reader = new StreamReader(Path.Combine(path, "materia.json")))
