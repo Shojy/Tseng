@@ -1,94 +1,366 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿
+<style>
+    .character {
+        float: left;
+        clear: both;
+        height: 175px;
+        padding-left: 20px;
+    }
 
-<div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="6000">
-    <ol class="carousel-indicators">
-        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-        <li data-target="#myCarousel" data-slide-to="1"></li>
-        <li data-target="#myCarousel" data-slide-to="2"></li>
-    </ol>
-    <div class="carousel-inner" role="listbox">
-        <div class="item active">
-            <img src="~/images/banner1.svg" alt="ASP.NET" class="img-responsive" />
-            <div class="carousel-caption" role="option">
-                <p>
-                    Learn how to build ASP.NET apps that can run anywhere.
-                    <a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525028&clcid=0x409">
-                        Learn More
-                    </a>
-                </p>
+    .portrait {
+        width: 150px;
+        float: left;
+    }
+
+        .portrait img {
+            width: 115px;
+        }
+
+        .portrait.backrow img {
+            float: right;
+        }
+
+    .stats {
+        float: left;
+        padding-left: 15px;
+    }
+
+    .aqua {
+        color: #2ce8df !important;
+    }
+
+    .status {
+        color: #c71585;
+    }
+
+    .slots {
+        top: -2px;
+        display: block;
+        padding: 2px;
+        list-style: none;
+        position: relative;
+        background: rgba(45, 45, 45, 0.4);
+        border-right: 1px rgba(180, 180, 180, 0.3) solid;
+        border-bottom: 1px rgba(180, 180, 180, 0.3) solid;
+        float: left;
+        clear: both;
+        width: 224px;
+        height: 22px;
+    }
+
+    .arm {
+        top: -8px;
+    }
+
+    .slots li {
+        display: inline-block;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 28px;
+        height: 22px;
+        background-size: 28px 22px;
+        background-color: transparent;
+        list-style: none;
+        float: left;
+        position: relative;
+        background-image: url('/images/slots-single-normal.png');
+    }
+
+        .slots li img {
+            width: 18px;
+            height: 18px;
+            margin: 2px 5px !important;
+        }
+
+    .slots.no-growth li {
+        background-image: url('/images/slots-single-nothing.png');
+    }
+
+    .slots li.linked:nth-child(odd) {
+        background-image: url('/images/slots-linked-normal-left.png');
+    }
+
+    .slots li.linked:nth-child(even) {
+        background-image: url('/images/slots-linked-normal-right.png');
+    }
+
+    .slots.no-growth li.linked:nth-child(odd) {
+        background-image: url('/images/slots-linked-nothing-left.png');
+    }
+
+    .slots.no-growth li.linked:nth-child(even) {
+        background-image: url('/images/slots-linked-nothing-right.png');
+    }
+
+    .weapon, .armlet, .accessory {
+        line-height: 26px;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+        .weapon img, .armlet img, .accessory img {
+            height: 24px;
+            margin: 0 !important;
+            padding: 0 !important;
+
+        }
+
+    .base {
+        float: left;
+        clear: both;
+        width: 100%;
+    }
+
+    .gil {
+        float: right;
+        text-align: right;
+    }
+
+    .location {
+        float: left;
+    }
+
+    .slide {
+        display: none;
+    }
+
+    .active-slide {
+        display: block;
+    }
+
+    .fixed {
+        display: inline-block;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 60px;
+
+    }
+
+    .ff7 .text .character.dead * {
+        color: #ab0000;
+    }
+
+    .ff7 { clear: both;}
+</style>
+
+
+<div class="ff7">
+    <div class="layer tl"></div>
+    <div class="layer bl"></div>
+    <div class="layer tr"></div>
+    <div class="layer br"></div>
+    <div class="layer border"></div>
+    <div class="text">
+        <div class="character">
+            <div class="portrait">
+                <img src="images/character-young-cloud.png" />
+            </div>
+            <div class="stats">
+                <span class="name">Cloud</span>
+                <span class="aqua">LV </span><span class="level">7</span> <span class="status"></span><br />
+                <span class="aqua">HP </span><span class="current-hp">334</span> / <span class="max-hp">356</span><br />
+                <span class="aqua">MP </span><span class="current-mp">34</span> / <span class="max-mp">56</span><br />
+                <div class="slide">
+                    <ul class="wpn slots">
+                        <li class="linked"></li>
+                        <li class="linked"></li>
+                    </ul>
+                    <ul class="arm slots">
+                        <li class=""></li>
+                    </ul>
+                </div>
+                <div class="slide active-slide">
+                    <span class="aqua fixed">Wpn. </span><span class="weapon"></span><br />
+                    <span class="aqua fixed">Arm. </span><span class="armlet"></span><br />
+                    <span class="aqua fixed">Acc. </span><span class="accessory"></span>
+                </div>
             </div>
         </div>
-        <div class="item">
-            <img src="~/images/banner2.svg" alt="Visual Studio" class="img-responsive" />
-            <div class="carousel-caption" role="option">
-                <p>
-                    There are powerful new features in Visual Studio for building modern web apps.
-                    <a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525030&clcid=0x409">
-                        Learn More
-                    </a>
-                </p>
+        <div class="character">
+            <div class="portrait">
+                <img src="images/character-young-cloud.png" />
+            </div>
+            <div class="stats">
+                <span class="name">Cloud</span>
+                <span class="aqua">LV </span><span class="level">7</span> <span class="status"></span><br />
+                <span class="aqua">HP </span><span class="current-hp">334</span> / <span class="max-hp">356</span><br />
+                <span class="aqua">MP </span><span class="current-mp">34</span> / <span class="max-mp">56</span><br />
+                <div class="slide">
+                    <ul class="wpn slots">
+                        <li class="linked"></li>
+                        <li class="linked"></li>
+                    </ul>
+                    <ul class="arm slots">
+                        <li class=""></li>
+                    </ul>
+                </div>
+                <div class="slide active-slide">
+                    <span class="aqua fixed">Wpn. </span><span class="weapon"></span><br />
+                    <span class="aqua fixed">Arm. </span><span class="armlet"></span><br />
+                    <span class="aqua fixed">Acc. </span><span class="accessory"></span>
+                </div>
             </div>
         </div>
-        <div class="item">
-            <img src="~/images/banner3.svg" alt="Microsoft Azure" class="img-responsive" />
-            <div class="carousel-caption" role="option">
-                <p>
-                    Learn how Microsoft's Azure cloud platform allows you to build, deploy, and scale web apps.
-                    <a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525027&clcid=0x409">
-                        Learn More
-                    </a>
-                </p>
+        <div class="character">
+            <div class="portrait">
+                <img src="images/character-young-cloud.png" />
+            </div>
+            <div class="stats">
+                <span class="name">Cloud</span>
+                <span class="aqua">LV </span><span class="level">7</span> <span class="status"></span><br />
+                <span class="aqua">HP </span><span class="current-hp">334</span> / <span class="max-hp">356</span><br />
+                <span class="aqua">MP </span><span class="current-mp">34</span> / <span class="max-mp">56</span><br />
+                <div class="slide">
+                    <ul class="wpn slots">
+                        <li class="linked"></li>
+                        <li class="linked"></li>
+                    </ul>
+                    <ul class="arm slots">
+                        <li class=""></li>
+                    </ul>
+                </div>
+                <div class="slide active-slide">
+                    <span class="aqua fixed">Wpn. </span><span class="weapon"></span><br />
+                    <span class="aqua fixed">Arm. </span><span class="armlet"></span><br />
+                    <span class="aqua fixed">Acc. </span><span class="accessory"></span>
+                </div>
             </div>
         </div>
     </div>
-    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-    </a>
-    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-    </a>
+</div>
+<div class="ff7" style="top: 5px;">
+    <div class="layer tl"></div>
+    <div class="layer bl"></div>
+    <div class="layer tr"></div>
+    <div class="layer br"></div>
+    <div class="layer border"></div>
+    <div class="text">
+        <div class="base"><span class="location"></span><span class="gil"></span></div>
+    </div>
 </div>
 
-<div class="row">
-    <div class="col-md-3">
-        <h2>Application uses</h2>
-        <ul>
-            <li>Sample pages using ASP.NET Core MVC</li>
-            <li>Theming using <a href="https://go.microsoft.com/fwlink/?LinkID=398939">Bootstrap</a></li>
-        </ul>
-    </div>
-    <div class="col-md-3">
-        <h2>How to</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=398600">Add a Controller and View</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699315">Manage User Secrets using Secret Manager.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699316">Use logging to log a message.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699317">Add packages using NuGet.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699319">Target development, staging or production environment.</a></li>
-        </ul>
-    </div>
-    <div class="col-md-3">
-        <h2>Overview</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=518008">Conceptual overview of what is ASP.NET Core</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699320">Fundamentals of ASP.NET Core such as Startup and middleware.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=398602">Working with Data</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=398603">Security</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699321">Client side development</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699322">Develop on different platforms</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699323">Read more on the documentation site</a></li>
-        </ul>
-    </div>
-    <div class="col-md-3">
-        <h2>Run &amp; Deploy</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=517851">Run your app</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=517853">Run tools such as EF migrations and more</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=398609">Publish to Microsoft Azure Web Apps</a></li>
-        </ul>
-    </div>
-</div>
+
+<script>
+
+    var updateCharacters = function () {
+        $.getJSON("/Home/Data",
+            null,
+            function (data) {
+                //console.log(data);
+                $('.gil').text(data.gil + ' Gil');
+                $('.location').text(data.location);
+
+
+                for (var i = 0; i < 3; ++i) {
+                    var char = data.party[i];
+                    var ch = $('.character:nth-child(' + (i + 1) + ')');
+                    ch.find(' .portrait')
+                        .html('<img src="/images/character-' + char.face + '.png" />');
+
+                    if (char.backRow) {
+                        ch.find('.portrait').addClass('backrow');
+                    } else {
+                        ch.find('.portrait').removeClass('backrow');
+
+                    }
+                    ch.find('.name').text(char.name);
+                    if (char.currentHp == 0) {
+                        ch.addClass('dead');
+                    } else {
+                        ch.removeClass('dead');
+                    }
+
+                    ch.find('.level').text(char.level);
+                    ch.find('.current-hp').text(char.currentHp);
+                    ch.find('.max-hp').text(char.maxHp);
+                    ch.find('.current-mp').text(char.currentMp);
+                    ch.find('.max-mp').text(char.maxMp);
+                    ch.find('.status').text(char.status.toUpperCase());
+                    ch.find('.weapon')
+                        .html(
+                            '<img src="/images/weapon-'
+                            + char.weapon.weaponType.toLowerCase()
+                            + '.png" /> '
+                            + char.weapon.name);
+
+                    ch.find('.armlet')
+                        .html(
+                            '<img src="/images/armlet.png" /> '
+                            + char.armlet.name);
+
+                    if (char.accessory) {
+
+                        ch.find('.accessory')
+                            .html(
+                                '<img src="/images/accessory.png" /> ' + char.accessory.name);
+                    } else {
+                        ch.find('.accessory')
+                            .html('');
+                    }
+
+                    var wpn = ch.find('.wpn');
+
+                    if (char.weapon.growth === 0) {
+                        wpn.addClass('no-growth');
+                    } else {
+                        wpn.removeClass('no-growth');
+                    }
+
+                    wpn.html('');
+                    for (var j = 0; j < char.weapon.linkedSlots; ++j) {
+                        wpn.append('<li class="linked"></li>');
+                    }
+                    for (var j = 0; j < char.weapon.singleSlots; ++j) {
+                        wpn.append('<li></li>');
+                    }
+
+                    var arm = ch.find('.arm');
+
+                    if (char.armlet.growth === 0) {
+                        arm.addClass('no-growth');
+                    } else {
+                        arm.removeClass('no-growth');
+                    }
+                    arm.html('');
+                    for (var j = 0; j < char.armlet.linkedSlots; ++j) {
+                        arm.append('<li class="linked"></li>');
+                    }
+                    for (var j = 0; j < char.armlet.singleSlots; ++j) {
+                        arm.append('<li></li>');
+                    }
+                    for (var m = 0; m < 8; ++m) {
+                        var mat = char.weaponMateria[m];
+                        var slot = wpn.find(':nth-child(' + (m + 1) + ')');
+                        if (mat.typeName != "None") {
+                            slot.html('<img src="/images/materia-' + mat.typeName.toLowerCase() + '.png" />');
+                        } else {
+                            slot.html('');
+                        }
+                    }
+                    for (var m = 0; m < 8; ++m) {
+                        var mat = char.armletMateria[m];
+                        var slot = arm.find(':nth-child(' + (m + 1) + ')');
+                        if (mat.typeName != "None") {
+                            slot.html('<img src="/images/materia-' + mat.typeName.toLowerCase() + '.png" />');
+                        } else {
+                            slot.html('');
+                        }
+                    }
+                }
+
+                setTimeout(updateCharacters, 500);
+            });
+    }
+
+    var cycleView = function () {
+        $('.slide').toggleClass('active-slide');
+
+        setTimeout(cycleView, 5000);
+    };
+
+
+    $(document).ready(function () {
+        updateCharacters();
+        setTimeout(cycleView, 5000);
+    });
+</script>
