@@ -141,6 +141,11 @@
     }
 
     .ff7 { clear: both;}
+
+    .hidden { 
+        visibility: hidden;
+
+    }
 </style>
 
 
@@ -246,7 +251,7 @@
         $.getJSON("/Home/Data",
             null,
             function (data) {
-                //console.log(data);
+                console.log(data);
                 $('.gil').text(data.gil + ' Gil');
                 $('.location').text(data.location);
 
@@ -254,6 +259,13 @@
                 for (var i = 0; i < 3; ++i) {
                     var char = data.party[i];
                     var ch = $('.character:nth-child(' + (i + 1) + ')');
+
+                    if (!char) {
+                        ch.addClass('hidden');
+                        continue;
+                    } else {
+                        ch.removeClass("hidden");
+                    }
                     ch.find(' .portrait')
                         .html('<img src="/images/character-' + char.face + '.png" />');
 
@@ -347,6 +359,9 @@
                         }
                     }
                 }
+
+            })
+            .always(function() {
 
                 setTimeout(updateCharacters, 500);
             });

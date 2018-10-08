@@ -4,6 +4,7 @@
     <TargetFramework>net461</TargetFramework>
     <DebugType>full</DebugType>
     <ApplicationIcon>tseng.ico</ApplicationIcon>
+    <AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>

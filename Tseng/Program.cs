@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Timers;
 using Microsoft.AspNetCore;
@@ -47,6 +48,9 @@ namespace Tseng
 
             for (var i = 0; i < chars.Length; ++i)
             {
+                // Skip empty party
+                if (chars[i].ID == 0xFF) continue;
+
                 var chr = new Character()
                 {
                     MaxHp = chars[i].MaxHP,

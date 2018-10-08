@@ -83,21 +83,15 @@ public class FF7SaveMap
             Character[] resultArray = new Character[3];
             if (FillChar(_Map[0x4F8], ref resultArray[0]) == false)
             {
-                resultArray[0] = default(Character);
-                resultArray[1] = default(Character);
-                resultArray[2] = default(Character);
-                return resultArray;
+                resultArray[0] = new Character() { ID = 0xFF};
             }
             if (FillChar(_Map[0x4F9], ref resultArray[1]) == false)
             {
-                resultArray[1] = default(Character);
-                resultArray[2] = default(Character);
-                return resultArray;
+                resultArray[1] = new Character() { ID = 0xFF };
             }
             if (FillChar(_Map[0x4FA], ref resultArray[2]) == false)
             {
-                resultArray[2] = default(Character);
-                return resultArray;
+                resultArray[2] = new Character() { ID = 0xFF };
             }
             return resultArray;
         }
