@@ -172,7 +172,7 @@ namespace Tseng
                 do
                 {
                     Console.Write("Enter choice: ");
-                } while (int.TryParse(Console.ReadLine(), out choice) || choice <= 0 || choice > dataDirectories.Length);
+                } while (!int.TryParse(Console.ReadLine().Trim(), out choice) || choice <= 0 || choice > dataDirectories.Length);
                 selectedData = dataDirectories[choice - 1];
 
                 // Only need to load the base set if there's more than one option available.
@@ -187,72 +187,84 @@ namespace Tseng
 
         private static void MergeData(string path)
         {
-            using (var reader = new StreamReader(Path.Combine(path, "materia.json")))
+            if (File.Exists(Path.Combine(path, "materia.json")))
             {
-                var db = JsonConvert.DeserializeObject<List<Materia>>(reader.ReadToEnd());
-
-                foreach (var item in db)
+                using (var reader = new StreamReader(Path.Combine(path, "materia.json")))
                 {
-                    var existingRecord = MateriaDatabase.FirstOrDefault(x => x.Id == item.Id);
-                    if (!(existingRecord is null))
-                    {
-                        MateriaDatabase.Remove(existingRecord);
-                    }
+                    var db = JsonConvert.DeserializeObject<List<Materia>>(reader.ReadToEnd());
 
-                    MateriaDatabase.Add(item);
+                    foreach (var item in db)
+                    {
+                        var existingRecord = MateriaDatabase.FirstOrDefault(x => x.Id == item.Id);
+                        if (!(existingRecord is null))
+                        {
+                            MateriaDatabase.Remove(existingRecord);
+                        }
+
+                        MateriaDatabase.Add(item);
+                    }
+                    Console.WriteLine("Loaded Materia Database.");
                 }
-                Console.WriteLine("Loaded Materia Database.");
             }
 
 
-            using (var reader = new StreamReader(Path.Combine(path, "weapons.json")))
+            if (File.Exists(Path.Combine(path, "weapons.json")))
             {
-                var db = JsonConvert.DeserializeObject<List<Weapon>>(reader.ReadToEnd());
-                foreach (var item in db)
+                using (var reader = new StreamReader(Path.Combine(path, "weapons.json")))
                 {
-                    var existingRecord = WeaponDatabase.FirstOrDefault(x => x.Id == item.Id);
-                    if (!(existingRecord is null))
+                    var db = JsonConvert.DeserializeObject<List<Weapon>>(reader.ReadToEnd());
+                    foreach (var item in db)
                     {
-                        WeaponDatabase.Remove(existingRecord);
-                    }
+                        var existingRecord = WeaponDatabase.FirstOrDefault(x => x.Id == item.Id);
+                        if (!(existingRecord is null))
+                        {
+                            WeaponDatabase.Remove(existingRecord);
+                        }
 
-                    WeaponDatabase.Add(item);
+                        WeaponDatabase.Add(item);
+                    }
+                    Console.WriteLine("Loaded Weapon Database.");
                 }
-                Console.WriteLine("Loaded Weapon Database.");
             }
 
 
-            using (var reader = new StreamReader(Path.Combine(path, "armlets.json")))
+            if (File.Exists(Path.Combine(path, "armlets.json")))
             {
-                var db = JsonConvert.DeserializeObject<List<Armlet>>(reader.ReadToEnd());
-                foreach (var item in db)
+                using (var reader = new StreamReader(Path.Combine(path, "armlets.json")))
                 {
-                    var existingRecord = ArmletDatabase.FirstOrDefault(x => x.Id == item.Id);
-                    if (!(existingRecord is null))
+                    var db = JsonConvert.DeserializeObject<List<Armlet>>(reader.ReadToEnd());
+                    foreach (var item in db)
                     {
-                        ArmletDatabase.Remove(existingRecord);
-                    }
+                        var existingRecord = ArmletDatabase.FirstOrDefault(x => x.Id == item.Id);
+                        if (!(existingRecord is null))
+                        {
+                            ArmletDatabase.Remove(existingRecord);
+                        }
 
-                    ArmletDatabase.Add(item);
+                        ArmletDatabase.Add(item);
+                    }
+                    Console.WriteLine("Loaded Armlet Database.");
                 }
-                Console.WriteLine("Loaded Armlet Database.");
             }
 
 
-            using (var reader = new StreamReader(Path.Combine(path, "accessories.json")))
+            if (File.Exists(Path.Combine(path, "accessories.json")))
             {
-                var db = JsonConvert.DeserializeObject<List<Accessory>>(reader.ReadToEnd());
-                foreach (var item in db)
+                using (var reader = new StreamReader(Path.Combine(path, "accessories.json")))
                 {
-                    var existingRecord = AccessoryDatabase.FirstOrDefault(x => x.Id == item.Id);
-                    if (!(existingRecord is null))
+                    var db = JsonConvert.DeserializeObject<List<Accessory>>(reader.ReadToEnd());
+                    foreach (var item in db)
                     {
-                        AccessoryDatabase.Remove(existingRecord);
-                    }
+                        var existingRecord = AccessoryDatabase.FirstOrDefault(x => x.Id == item.Id);
+                        if (!(existingRecord is null))
+                        {
+                            AccessoryDatabase.Remove(existingRecord);
+                        }
 
-                    AccessoryDatabase.Add(item);
+                        AccessoryDatabase.Add(item);
+                    }
+                    Console.WriteLine("Loaded Accessory Database.");
                 }
-                Console.WriteLine("Loaded Accessory Database.");
             }
         }
 

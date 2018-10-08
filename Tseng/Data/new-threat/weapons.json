@@ -1,0 +1,42 @@
+[
+  {
+    "Id": 16,
+    "Name": "Farmer Glove",
+    "Type": "Glove",
+    "LinkedSlots": 0,
+    "SingleSlots": 1,
+    "Growth": 1
+  },
+  {
+    "Id": 32,
+    "Name": "Maxim Gun",
+    "Type": "Arm",
+    "LinkedSlots": 0,
+    "SingleSlots": 1,
+    "Growth": 1
+  },
+  {
+    "Id": 4,
+    "Name": "Red Clip",
+    "Type": "Hairpin",
+    "LinkedSlots": 2,
+    "SingleSlots": 1,
+    "Growth": 1
+  },
+  {
+    "Id": 63,
+    "Name": "Restore Rod",
+    "Type": "Staff",
+    "LinkedSlots": 2,
+    "SingleSlots": 0,
+    "Growth": 1
+  },
+  {
+    "Id": 54,
+    "Name": "Howl Comb",
+    "Type": "Hairpin",
+    "LinkedSlots": 0,
+    "SingleSlots": 3,
+    "Growth": 2
+  }
+]
