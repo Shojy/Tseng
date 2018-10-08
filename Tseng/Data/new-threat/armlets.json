@@ -1,0 +1,156 @@
+[
+  {
+    "Id": 0,
+    "Name": "Bronze Bangle",
+    "LinkedSlots": 2,
+    "SingleSlots": 1,
+    "Growth": 1
+  },
+  {
+    "Id": 1,
+    "Name": "Iron Bangle",
+    "LinkedSlots": 0,
+    "SingleSlots": 2,
+    "Growth": 1
+  },
+  {
+    "Id": 2,
+    "Name": "Titan Bangle",
+    "LinkedSlots": 0,
+    "SingleSlots": 3,
+    "Growth": 1
+  },
+  {
+    "Id": 3,
+    "Name": "Mythril Armlet",
+    "LinkedSlots": 0,
+    "SingleSlots": 3,
+    "Growth": 1
+  },
+  {
+    "Id": 4,
+    "Name": "Carbon Bangle",
+    "LinkedSlots": 2,
+    "SingleSlots": 2,
+    "Growth": 1
+  },
+  {
+    "Id": 9,
+    "Name": "Platinum Bangle",
+    "LinkedSlots": 0,
+    "SingleSlots": 3,
+    "Growth": 2
+  },
+  {
+    "Id": 11,
+    "Name": "Edincoat",
+    "LinkedSlots": 2,
+    "SingleSlots": 4,
+    "Growth": 1
+  },
+  {
+    "Id": 14,
+    "Name": "Gigas Armlet",
+    "LinkedSlots": 0,
+    "SingleSlots": 5,
+    "Growth": 0
+  },
+  {
+    "Id": 16,
+    "Name": "Aegis Armlet",
+    "LinkedSlots": 6,
+    "SingleSlots": 0,
+    "Growth": 0
+  },
+  {
+    "Id": 17,
+    "Name": "Fourth Bracelet",
+    "LinkedSlots": 4,
+    "SingleSlots": 2,
+    "Growth": 1
+  },
+  {
+    "Id": 18,
+    "Name": "Warrior Bangle",
+    "LinkedSlots": 4,
+    "SingleSlots": 1,
+    "Growth": 1
+  },
+  {
+    "Id": 19,
+    "Name": "Shinra Beta",
+    "LinkedSlots": 0,
+    "SingleSlots": 3,
+    "Growth": 1
+  },
+  {
+    "Id": 20,
+    "Name": "Shinra Alpha",
+    "LinkedSlots": 6,
+    "SingleSlots": 2,
+    "Growth": 1
+  },
+  {
+    "Id": 21,
+    "Name": "Four Slots",
+    "LinkedSlots": 4,
+    "SingleSlots": 0,
+    "Growth": 1
+  },
+  {
+    "Id": 22,
+    "Name": "Fire Armlet",
+    "LinkedSlots": 4,
+    "SingleSlots": 1,
+    "Growth": 1
+  },
+  {
+    "Id": 23,
+    "Name": "Aurora Armlet",
+    "LinkedSlots": 4,
+    "SingleSlots": 1,
+    "Growth": 1
+  },
+  {
+    "Id": 24,
+    "Name": "Bolt Armlet",
+    "LinkedSlots": 4,
+    "SingleSlots": 1,
+    "Growth": 1
+  },
+  {
+    "Id": 25,
+    "Name": "Dragon Armlet",
+    "LinkedSlots": 4,
+    "SingleSlots": 1,
+    "Growth": 1
+  },
+  {
+    "Id": 28,
+    "Name": "Mystile",
+    "LinkedSlots": 0,
+    "SingleSlots": 6,
+    "Growth": 0
+  },
+  {
+    "Id": 29,
+    "Name": "Ziedrich",
+    "LinkedSlots": 0,
+    "SingleSlots": 6,
+    "Growth": 0
+  },
+  {
+    "Id": 30,
+    "Name": "Precious Watch",
+    "LinkedSlots": 0,
+    "SingleSlots": 8,
+    "Growth": 3
+  },
+  {
+    "Id": 31,
+    "Name": "Chocobracelet",
+    "LinkedSlots": 0,
+    "SingleSlots": 4,
+    "Growth": 1
+  }
+]
