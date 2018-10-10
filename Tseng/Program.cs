@@ -99,6 +99,7 @@ namespace Tseng
                     chr.MaxMp = party[i].MaxMp;
                     chr.Level = party[i].Level;
                     effect = party[i].Status;
+                    chr.BackRow = party[i].IsBackRow;
                 }
 
 
@@ -359,7 +360,8 @@ namespace Tseng
             public short CurrentMp { get; set; } // 0x28
             public short MaxMp { get; set; } // 0x2A
             public byte Level { get; set; } // 0x09
-            public StatusEffect Status { get; set; } // 0x??
+            public StatusEffect Status { get; set; } // 0x00
+            public bool IsBackRow { get; set; } //0x03
 
         }
 
@@ -380,7 +382,8 @@ namespace Tseng
                     CurrentMp = BitConverter.ToInt16(_map, offset + 0x28),
                     MaxMp = BitConverter.ToInt16(_map, offset + 0x2A),
                     Level = _map[offset+0x09],
-                    Status = (StatusEffect)BitConverter.ToUInt32(_map, offset + 0x00)
+                    Status = (StatusEffect)BitConverter.ToUInt32(_map, offset + 0x00),
+                    IsBackRow = (_map[offset + 0x04] & 0x40) == 0x40
                 };
                 acts[i] = a;
             }
