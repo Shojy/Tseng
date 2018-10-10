@@ -430,7 +430,7 @@ public class FF7SaveMap
 
             case 6:
                 {
-                    return 0x036;
+                    return 0x036C;
                 }
 
             case 7:

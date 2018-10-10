@@ -361,7 +361,7 @@ namespace Tseng
             public short MaxMp { get; set; } // 0x2A
             public byte Level { get; set; } // 0x09
             public StatusEffect Status { get; set; } // 0x00
-            public bool IsBackRow { get; set; } //0x03
+            public bool IsBackRow { get; set; } //0x04
 
         }
 
