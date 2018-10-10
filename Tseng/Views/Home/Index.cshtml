@@ -395,7 +395,7 @@
 
     var cycleStatus = function() {
         for (var i = 0; i < 3; ++i) {
-            if (charStatus[i].length == 0) {
+            if (charStatus[i].length == 0 || charStatus[i][index % charStatus[i].length] == 'None') {
                 $('.character:nth-child(' + (i + 1) + ') .status').html('');
             } else {
                 $('.character:nth-child(' + (i + 1) + ') .status').html(charStatus[i][index % charStatus[i].length]);

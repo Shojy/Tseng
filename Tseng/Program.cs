@@ -102,8 +102,11 @@ namespace Tseng
                 }
 
 
-                chr.StatusEffects = effect.ToString()
-                    .Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+                var effs = effect.ToString()
+                    .Split(new[] {", "}, StringSplitOptions.RemoveEmptyEntries)
+                    .ToList();
+                effs.RemoveAll(x => new[]{"None", "Death"}.Contains(x));
+                chr.StatusEffects = effs.ToArray();
                 status.Party[i] = chr;
             }
 

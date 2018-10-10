@@ -21,6 +21,6 @@ namespace Tseng.Models
         public Materia[] ArmletMateria { get; set; }
         public bool BackRow { get; set; }
         public string Status { get; set; } = "";
-        public string[] StatusEffects = new string[0];
+        public string[] StatusEffects { get; set; } = new string[0];
     }
 }
