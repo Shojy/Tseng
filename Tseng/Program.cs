@@ -71,14 +71,7 @@ namespace Tseng
                     
                 };
 
-                if ((chars[i].Flags & 0x10) == 0x10)
-                {
-                    chr.Status = "Sadness";
-                }
-                if ((chars[i].Flags & 0x20) == 0x20)
-                {
-                    chr.Status = "Fury";
-                }
+
 
                 for (var m = 0; m < chars[i].WeaponMateria.Length; ++m)
                 {
