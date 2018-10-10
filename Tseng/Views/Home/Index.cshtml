@@ -310,8 +310,14 @@
                     } else {
                         ch.removeClass("hidden");
                     }
-                    ch.find(' .portrait')
+                    if (char.statusEffects.includes('Frog')) {
+                        ch.find(' .portrait')
+                            .html('<img src="/images/frog.jpg" />');
+                    }
+                    else {
+                        ch.find(' .portrait')
                         .html('<img src="/images/character-' + char.face + '.png" />');
+                    }
 
                     if (char.backRow) {
                         ch.find('.portrait').addClass('backrow');
