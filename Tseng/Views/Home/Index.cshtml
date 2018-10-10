@@ -29,8 +29,12 @@
         color: #2ce8df !important;
     }
 
-    .status {
-        color: #c71585;
+    :not(.dead) .status {
+        color: #c71585 !important;
+    }
+
+    .hp-low .current-hp {
+        color: #ffa500;
     }
 
     .slots {
@@ -146,6 +150,10 @@
         visibility: hidden;
 
     }
+
+    .status span {
+        display: none;
+    }
 </style>
 
 
@@ -246,7 +254,11 @@
 
 
 <script>
-
+    var charStatus = [];
+    charStatus.push([]);
+    charStatus.push([]);
+    charStatus.push([]);
+    
     var updateCharacters = function () {
         $.getJSON("/Home/Data",
             null,
@@ -254,8 +266,7 @@
                 console.log(data);
                 $('.gil').text(data.gil + ' Gil');
                 $('.location').text(data.location);
-
-
+                
                 for (var i = 0; i < 3; ++i) {
                     var char = data.party[i];
                     var ch = $('.character:nth-child(' + (i + 1) + ')');
@@ -284,10 +295,15 @@
 
                     ch.find('.level').text(char.level);
                     ch.find('.current-hp').text(char.currentHp);
+
+                    if (char.currentHp > 0 && char.currentHp < char.maxHp / 4) {
+                        ch.addClass('hp-low');
+                    } else {
+                        ch.removeClass('hp-low');
+                    }
                     ch.find('.max-hp').text(char.maxHp);
                     ch.find('.current-mp').text(char.currentMp);
                     ch.find('.max-mp').text(char.maxMp);
-                    ch.find('.status').text(char.status.toUpperCase());
                     ch.find('.weapon')
                         .html(
                             '<img src="/images/weapon-'
@@ -358,6 +374,8 @@
                             slot.html('');
                         }
                     }
+
+                    charStatus[i] = char.statusEffects;
                 }
 
             })
@@ -373,9 +391,27 @@
         setTimeout(cycleView, 5000);
     };
 
+    var index = 0;
+
+    var cycleStatus = function() {
+        for (var i = 0; i < 3; ++i) {
+            if (charStatus[i].length == 0) {
+                $('.character:nth-child(' + (i + 1) + ') .status').html('');
+            } else {
+                $('.character:nth-child(' + (i + 1) + ') .status').html(charStatus[i][index % charStatus[i].length]);
+            }
+
+        }
+        ++index;
+        if (index > 0 && index == charStatus[0].length * charStatus[1].length * charStatus[2].length) index = 0; // prevent overflowing
+
+        setTimeout(cycleStatus, 1000);
+    }
+
 
     $(document).ready(function () {
         updateCharacters();
-        setTimeout(cycleView, 5000);
+
+        cycleStatus();
     });
 </script>

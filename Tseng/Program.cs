@@ -35,14 +35,16 @@ namespace Tseng
             StartServer(args);
         }
 
-        public static Status ExtractStatusFromMap(FF7SaveMap map)
+        public static Status ExtractStatusFromMap(FF7SaveMap map, FF7BattleMap battleMap)
         {
             var status = new Status()
             {
                 Gil = map.LiveGil,
                 Location = map.LiveMapName,
-                Party = new Character[3]
+                Party = new Character[3],
+                ActiveBattle = battleMap.IsActiveBattle
             };
+            var party = battleMap.Party;
 
             var chars = map.LiveParty;
 
@@ -65,7 +67,8 @@ namespace Tseng
                     WeaponMateria = new Materia[8],
                     ArmletMateria = new Materia[8],
                     Face = GetFaceForCharacter(chars[i]),
-                    BackRow = !chars[i].AtFront
+                    BackRow = !chars[i].AtFront,
+                    
                 };
 
                 if ((chars[i].Flags & 0x10) == 0x10)
@@ -86,6 +89,21 @@ namespace Tseng
                     chr.ArmletMateria[m] = MateriaDatabase.FirstOrDefault(x => x.Id == chars[i].ArmorMateria[m]);
                 }
 
+                var effect = (StatusEffect) chars[i].Flags;
+
+                if (battleMap.IsActiveBattle)
+                {
+                    chr.CurrentHp = party[i].CurrentHp;
+                    chr.MaxHp = party[i].MaxHp;
+                    chr.CurrentMp = party[i].CurrentMp;
+                    chr.MaxMp = party[i].MaxMp;
+                    chr.Level = party[i].Level;
+                    effect = party[i].Status;
+                }
+
+
+                chr.StatusEffects = effect.ToString()
+                    .Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
                 status.Party[i] = chr;
             }
 
@@ -168,14 +186,22 @@ namespace Tseng
         private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             var bytes = MemoryReader.ReadMemory(new IntPtr(0xDBFD38), 4342);
+            var isBattle = MemoryReader.ReadMemory(new IntPtr(0x9A8AF8), 1).First();
+            
+
+                var battle = MemoryReader.ReadMemory(new IntPtr(0x9AB0DC), 0x750);
+            
 
             //lock (SaveMap)
             {
                 SaveMap = new FF7SaveMap(ref bytes);
+                BattleMap = new FF7BattleMap(ref battle, isBattle);
             }
 
-            PartyStatus = ExtractStatusFromMap(SaveMap);
+            PartyStatus = ExtractStatusFromMap(SaveMap, BattleMap);
         }
+
+        public static FF7BattleMap BattleMap { get; set; }
 
         private static void LoadData()
         {
@@ -305,5 +331,59 @@ namespace Tseng
             WebHost.CreateDefaultBuilder(args)
                 .UseKestrel(opts => opts.ListenAnyIP(5000))
                 .UseStartup<Startup>();
+    }
+
+    public class FF7BattleMap
+    {
+        public FF7BattleMap(ref byte[] bytes, byte activeBattle)
+        {
+            IsActiveBattle = activeBattle == 0x01;
+            _map = bytes;
+        }
+
+        private byte[] _map;
+
+        public bool IsActiveBattle { get; set; }
+
+        private int _size = 0x68;
+        private int _charStart = 0x00;
+        private int _oppsStart = 0x01A0;
+
+        public struct Actor
+        {
+            public int CurrentHp { get; set; } // 0x2C
+            public int MaxHp { get; set; } // 0x30
+            public short CurrentMp { get; set; } // 0x28
+            public short MaxMp { get; set; } // 0x2A
+            public byte Level { get; set; } // 0x09
+            public StatusEffect Status { get; set; } // 0x??
+
+        }
+
+        public Actor[] Party => GetActors(_charStart, 3);
+        public Actor[] Opponents => GetActors(_oppsStart, 6);
+
+        private Actor[] GetActors(int start, int count)
+        {
+            var acts = new Actor[count];
+
+            for(var i = 0; i < count; ++i)
+            {
+                var offset = start + i * _size;
+                var a = new Actor
+                {
+                    CurrentHp = BitConverter.ToInt32(_map, offset + 0x2C),
+                    MaxHp = BitConverter.ToInt32(_map, offset + 0x30),
+                    CurrentMp = BitConverter.ToInt16(_map, offset + 0x28),
+                    MaxMp = BitConverter.ToInt16(_map, offset + 0x2A),
+                    Level = _map[offset+0x09],
+                    Status = (StatusEffect)BitConverter.ToUInt32(_map, offset + 0x00)
+                };
+                acts[i] = a;
+            }
+
+            return acts;
+        }
+
     }
 }

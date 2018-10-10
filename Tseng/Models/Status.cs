@@ -5,5 +5,6 @@
         public Character[] Party { get; set; }
         public int Gil { get; set; }
         public string Location { get; set; }
+        public bool ActiveBattle { get; set; }
     }
 }
