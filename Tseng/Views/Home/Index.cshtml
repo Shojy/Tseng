@@ -106,7 +106,6 @@
             height: 24px;
             margin: 0 !important;
             padding: 0 !important;
-
         }
 
     .base {
@@ -137,22 +136,56 @@
         margin: 0 !important;
         padding: 0 !important;
         width: 60px;
-
     }
 
     .ff7 .text .character.dead * {
         color: #ab0000;
     }
 
-    .ff7 { clear: both;}
+    .ff7 {
+        clear: both;
+    }
 
-    .hidden { 
+    .hidden {
         visibility: hidden;
-
     }
 
     .status span {
         display: none;
+    }
+
+    .rainbow {
+        animation: rainbow .5s infinite;
+    }
+
+    @@keyframes rainbow {
+        0% {
+            color: orange;
+        }
+
+        10% {
+            color: purple;
+        }
+
+        20% {
+            color: red;
+        }
+
+        40% {
+            color: yellow;
+        }
+
+        60% {
+            color: green;
+        }
+
+        80% {
+            color: blue;
+        }
+
+        100% {
+            color: orange;
+        }
     }
 </style>
 
@@ -258,7 +291,7 @@
     charStatus.push([]);
     charStatus.push([]);
     charStatus.push([]);
-    
+
     var updateCharacters = function () {
         $.getJSON("/Home/Data",
             null,
@@ -266,7 +299,7 @@
                 console.log(data);
                 $('.gil').text(data.gil + ' Gil');
                 $('.location').text(data.location);
-                
+
                 for (var i = 0; i < 3; ++i) {
                     var char = data.party[i];
                     var ch = $('.character:nth-child(' + (i + 1) + ')');
@@ -291,6 +324,12 @@
                         ch.addClass('dead');
                     } else {
                         ch.removeClass('dead');
+                    }
+
+                    if (char.currentHp == 7777) {
+                        ch.find('.name').addClass('rainbow');
+                    } else {
+                        ch.find('.name').removeClass('rainbow');
                     }
 
                     ch.find('.level').text(char.level);
@@ -379,7 +418,7 @@
                 }
 
             })
-            .always(function() {
+            .always(function () {
 
                 setTimeout(updateCharacters, 500);
             });
@@ -393,7 +432,7 @@
 
     var index = 0;
 
-    var cycleStatus = function() {
+    var cycleStatus = function () {
         for (var i = 0; i < 3; ++i) {
             if (charStatus[i].length == 0 || charStatus[i][index % charStatus[i].length] == 'None') {
                 $('.character:nth-child(' + (i + 1) + ') .status').html('');

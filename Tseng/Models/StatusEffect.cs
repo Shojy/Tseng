@@ -6,6 +6,24 @@ namespace Tseng.Models
     public enum StatusEffect:uint
     {
         None          = 0x00000000,
+
+        Death         = 0x00000001,
+        NearDeath     = 0x00000002,
+        Sleep         = 0x00000004,
+        Poison        = 0x00000008,
+        Sadness       = 0x00000010,
+        Fury          = 0x00000020,
+        Confusion     = 0x00000040,
+        Silence       = 0x00000080,
+        Haste         = 0x00000100,
+        Slow          = 0x00000200,
+        Stop          = 0x00000400,
+        Frog          = 0x00000800,
+        Small         = 0x00001000,
+        SlowNumb      = 0x00002000,
+        Petrify       = 0x00004000,
+        Regen         = 0x00008000,
+
         Barrier       = 0x00010000,
         MBarrier      = 0x00020000,
         Reflect       = 0x00040000,
@@ -17,22 +35,11 @@ namespace Tseng.Models
         Paralyzed     = 0x02000000,
         Darkness      = 0x04000000,
 
-        Death         = 0x0001,
-        NearDeath     = 0x0002,
-        Sleep         = 0x0004,
-        Poison        = 0x0008,
-        Sadness       = 0x0010,
-        Fury          = 0x0020,
-        Confusion     = 0x0040,
-        Silence       = 0x0080,
-        Haste         = 0x0100,
-        Slow          = 0x0200,
-        Stop          = 0x0400,
-        Frog          = 0x0800,
-        Small         = 0x1000,
-        SlowNumb      = 0x2000,
-        Petrify       = 0x4000,
-        Regen         = 0x8000,
+        //Dual          = ????,
+        //Imprisoned    = ????,
+        //Resist        = ????,
+        //Lucky         = ????,
+
     }
 
     /*
