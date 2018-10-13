@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 
 public class FF7SaveMap
 {
@@ -42,6 +43,14 @@ public class FF7SaveMap
         public Int32[] ArmorMateria; // 0x60, 0x64, 0x68, 0x6C, 0x60, 0x74, 0x78, 0x7C
         public Int32 ExpToLevel; // 0x80
     }
+
+
+    public string TopLeft { get; set; }// = $"{_Map[0x0048]:X2}{_Map[0x0049]:X2}{_Map[0x004A]:X2}";
+    public string TopRight { get; set; } //=> $"{_Map[0x004B]:X2}{_Map[0x004C]:X2}{_Map[0x004D]:X2}";
+
+    public string BottomLeft { get; set; }// => $"{_Map[0x004E]:X2}{_Map[0x004F]:X2}{_Map[0x0050]:X2}";
+    public string BottomRight { get; set; } // } => $"{_Map[0x0051]:X2}{_Map[0x0052]:X2}{_Map[0x0053]:X2}";
+
 
 
     private byte[] _Map;

@@ -25,7 +25,7 @@ namespace Tseng
         public static List<Weapon> WeaponDatabase { get; set; } = new List<Weapon>();
         public static List<Armlet> ArmletDatabase { get; set; } = new List<Armlet>();
         public static List<Accessory> AccessoryDatabase { get; set; } = new List<Accessory>();
-        public static Status PartyStatus { get; set; }
+        public static GameStatus PartyStatus { get; set; }
         public static void Main(string[] args)
         {
             LoadData();
@@ -35,18 +35,27 @@ namespace Tseng
             StartServer(args);
         }
 
-        public static Status ExtractStatusFromMap(FF7SaveMap map, FF7BattleMap battleMap)
+        public static GameStatus ExtractStatusFromMap(FF7SaveMap map, FF7BattleMap battleMap)
         {
-            var status = new Status()
+            var time = map.LiveTotalSeconds;
+
+            var t = $"{(time / 3600):00}:{((time%3600)/60):00}:{(time%60):00}";
+            var status = new GameStatus()
             {
                 Gil = map.LiveGil,
                 Location = map.LiveMapName,
                 Party = new Character[3],
-                ActiveBattle = battleMap.IsActiveBattle
+                ActiveBattle = battleMap.IsActiveBattle,
+                ColorTopLeft = map.TopLeft,
+                ColorBottomLeft = map.BottomLeft,
+                ColorBottomRight = map.BottomRight,
+                ColorTopRight = map.TopRight,
+                TimeActive = t
             };
             var party = battleMap.Party;
 
             var chars = map.LiveParty;
+
 
             for (var i = 0; i < chars.Length; ++i)
             {
@@ -68,7 +77,7 @@ namespace Tseng
                     ArmletMateria = new Materia[8],
                     Face = GetFaceForCharacter(chars[i]),
                     BackRow = !chars[i].AtFront,
-                    
+
                 };
 
 
@@ -82,7 +91,7 @@ namespace Tseng
                     chr.ArmletMateria[m] = MateriaDatabase.FirstOrDefault(x => x.Id == chars[i].ArmorMateria[m]);
                 }
 
-                var effect = (StatusEffect) chars[i].Flags;
+                var effect = (StatusEffect)chars[i].Flags;
 
                 if (battleMap.IsActiveBattle)
                 {
@@ -97,9 +106,9 @@ namespace Tseng
 
 
                 var effs = effect.ToString()
-                    .Split(new[] {", "}, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
                     .ToList();
-                effs.RemoveAll(x => new[]{"None", "Death"}.Contains(x));
+                effs.RemoveAll(x => new[] { "None", "Death" }.Contains(x));
                 chr.StatusEffects = effs.ToArray();
                 status.Party[i] = chr;
             }
@@ -184,16 +193,21 @@ namespace Tseng
         {
             var bytes = MemoryReader.ReadMemory(new IntPtr(0xDBFD38), 4342);
             var isBattle = MemoryReader.ReadMemory(new IntPtr(0x9A8AF8), 1).First();
-            
 
-                var battle = MemoryReader.ReadMemory(new IntPtr(0x9AB0DC), 0x750);
-            
 
-            //lock (SaveMap)
-            {
-                SaveMap = new FF7SaveMap(ref bytes);
-                BattleMap = new FF7BattleMap(ref battle, isBattle);
-            }
+            var battle = MemoryReader.ReadMemory(new IntPtr(0x9AB0DC), 0x750);
+
+            var colors = MemoryReader.ReadMemory(new IntPtr(0x0091EFC8), 16);
+
+
+            SaveMap = new FF7SaveMap(ref bytes);
+            BattleMap = new FF7BattleMap(ref battle, isBattle);
+
+
+            SaveMap.TopLeft = $"{colors[0x2]:X2}{colors[0x1]:X2}{colors[0x0]:X2}";
+            SaveMap.BottomLeft = $"{colors[0x6]:X2}{colors[0x5]:X2}{colors[0x4]:X2}";
+            SaveMap.TopRight = $"{colors[0xA]:X2}{colors[0x9]:X2}{colors[0x8]:X2}";
+            SaveMap.BottomRight = $"{colors[0xE]:X2}{colors[0xD]:X2}{colors[0xC]:X2}";
 
             PartyStatus = ExtractStatusFromMap(SaveMap, BattleMap);
         }
@@ -328,61 +342,5 @@ namespace Tseng
             WebHost.CreateDefaultBuilder(args)
                 .UseKestrel(opts => opts.ListenAnyIP(5000))
                 .UseStartup<Startup>();
-    }
-
-    public class FF7BattleMap
-    {
-        public FF7BattleMap(ref byte[] bytes, byte activeBattle)
-        {
-            IsActiveBattle = activeBattle == 0x01;
-            _map = bytes;
-        }
-
-        private byte[] _map;
-
-        public bool IsActiveBattle { get; set; }
-
-        private int _size = 0x68;
-        private int _charStart = 0x00;
-        private int _oppsStart = 0x01A0;
-
-        public struct Actor
-        {
-            public int CurrentHp { get; set; } // 0x2C
-            public int MaxHp { get; set; } // 0x30
-            public short CurrentMp { get; set; } // 0x28
-            public short MaxMp { get; set; } // 0x2A
-            public byte Level { get; set; } // 0x09
-            public StatusEffect Status { get; set; } // 0x00
-            public bool IsBackRow { get; set; } //0x04
-
-        }
-
-        public Actor[] Party => GetActors(_charStart, 3);
-        public Actor[] Opponents => GetActors(_oppsStart, 6);
-
-        private Actor[] GetActors(int start, int count)
-        {
-            var acts = new Actor[count];
-
-            for(var i = 0; i < count; ++i)
-            {
-                var offset = start + i * _size;
-                var a = new Actor
-                {
-                    CurrentHp = BitConverter.ToInt32(_map, offset + 0x2C),
-                    MaxHp = BitConverter.ToInt32(_map, offset + 0x30),
-                    CurrentMp = BitConverter.ToInt16(_map, offset + 0x28),
-                    MaxMp = BitConverter.ToInt16(_map, offset + 0x2A),
-                    Level = _map[offset+0x09],
-                    Status = (StatusEffect)BitConverter.ToUInt32(_map, offset + 0x00),
-                    IsBackRow = (_map[offset + 0x04] & 0x40) == 0x40
-                };
-                acts[i] = a;
-            }
-
-            return acts;
-        }
-
     }
 }

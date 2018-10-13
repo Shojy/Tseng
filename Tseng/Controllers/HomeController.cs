@@ -16,7 +16,7 @@ namespace Tseng.Controllers
             return View();
         }
 
-        public Status Data()
+        public GameStatus Data()
         {
             return Program.PartyStatus;
         }

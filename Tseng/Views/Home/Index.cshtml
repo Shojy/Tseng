@@ -33,9 +33,10 @@
         color: #c71585 !important;
     }
 
-    .hp-low .current-hp {
+    .hp-low .current-hp, .mp-low:not(.dead) .current-mp {
         color: #ffa500;
     }
+    
 
     .slots {
         top: -2px;
@@ -114,10 +115,12 @@
         width: 100%;
     }
 
-    .gil {
+    .gil, .time {
         float: right;
         text-align: right;
     }
+
+    .time { clear: both;}
 
     .location {
         float: left;
@@ -281,7 +284,11 @@
     <div class="layer br"></div>
     <div class="layer border"></div>
     <div class="text">
-        <div class="base"><span class="location"></span><span class="gil"></span></div>
+        <div class="base">
+            <span class="location"></span>
+            <span class="gil"></span>
+            <span class="time"></span>
+        </div>
     </div>
 </div>
 
@@ -345,6 +352,13 @@
                         ch.addClass('hp-low');
                     } else {
                         ch.removeClass('hp-low');
+                    }
+
+
+                    if (char.currentMp < char.maxMp / 4) {
+                        ch.addClass('mp-low');
+                    } else {
+                        ch.removeClass('mp-low');
                     }
                     ch.find('.max-hp').text(char.maxHp);
                     ch.find('.current-mp').text(char.currentMp);
@@ -423,6 +437,36 @@
                     charStatus[i] = char.statusEffects;
                 }
 
+
+
+                /*
+                 *
+                 *             .ff7 .tl {
+                background: linear-gradient(to top left, rgba(0,0,176, 0) 50%, rgba(0,0,176, 1));
+            }
+
+            .ff7 .tr {
+                background: radial-gradient(farthest-side at top right, rgba(0, 0, 80, 1), rgba(0, 0, 80, 0));
+            }
+
+            .ff7 .bl {
+                background: radial-gradient(farthest-side at bottom left, rgba(0, 0, 128, 1), rgba(0, 0, 128, 0));
+            }
+
+            .ff7 .br {
+                background: linear-gradient(to bottom right, rgba(0, 0, 32, 0) 50%, rgba(0, 0, 32, 1));
+            }
+                 */
+
+                $('.ff7 .layer.tl').css('background','linear-gradient(to top left, rgba(0,0,176, 0) 50%, #' +data.colorTopLeft +')');
+
+                $('.ff7 .layer.tr').css('background','radial-gradient(farthest-side at top right, #'+data.colorTopRight+', rgba(0, 0, 80, 0))');
+
+                $('.ff7 .layer.bl').css('background','radial-gradient(farthest-side at bottom left, #' + data.colorBottomLeft + ', rgba(0, 0, 128, 0))');
+
+                $('.ff7 .layer.br').css('background','linear-gradient(to bottom right, rgba(0, 0, 32, 0) 50%, #' + data.colorBottomRight + ')');
+
+                $('.time').html(data.timeActive);
             })
             .always(function () {
 
