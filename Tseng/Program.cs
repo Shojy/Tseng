@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Microsoft.AspNetCore;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Tseng.Models;
+using Timer = System.Timers.Timer;
 
 namespace Tseng
 {
@@ -157,6 +159,8 @@ namespace Tseng
             }
         }
 
+        private static string ProcessName { get; set; }
+
         private static void StartMonitoringGame()
         {
             var firstRun = true;
@@ -166,15 +170,21 @@ namespace Tseng
                 {
                     Console.WriteLine("Could not locate FF7. Is the game running?");
                     Console.WriteLine("Press enter key to try again, or input process name if different to normal (Eg. ff7_en):");
-                    var process = Console.ReadLine().Trim();
-                    if (!string.IsNullOrWhiteSpace(process))
+                    ProcessName = Console.ReadLine().Trim();
+                    if (!string.IsNullOrWhiteSpace(ProcessName))
                     {
-                        FF7 = Process.GetProcessesByName(process).FirstOrDefault();
+                        FF7 = Process.GetProcessesByName(ProcessName).FirstOrDefault();
+                    }
+
+                    if (FF7 is null)
+                    {
+                        SearchForProcess(ProcessName);
                     }
                 }
                 if (FF7 is null) FF7 = Process.GetProcessesByName("ff7_en").FirstOrDefault();
                 if (FF7 is null) FF7 = Process.GetProcessesByName("ff7").FirstOrDefault();
                 firstRun = false;
+
             }
 
             Console.WriteLine($"Located FF7 process {FF7.ProcessName}");
@@ -183,33 +193,75 @@ namespace Tseng
             Timer.Elapsed += Timer_Elapsed;
             Timer.AutoReset = true;
 
-            MemoryReader = new NativeMemoryReader(FF7);
 
             Timer_Elapsed(null, null);
             Timer.Start();
         }
 
+        private static void SearchForProcess(string processName)
+        {
+            Console.WriteLine("Searching...");
+            lock (Timer)
+            {
+
+
+                if (null != Timer)
+                {
+                    Timer.Enabled = false;
+                }
+
+                FF7 = null;
+                while (FF7 is null)
+                {
+                    try
+                    {
+                        if (FF7 is null) FF7 = Process.GetProcessesByName("ff7_en").FirstOrDefault();
+                        if (FF7 is null) FF7 = Process.GetProcessesByName("ff7").FirstOrDefault();
+                        if (FF7 is null && !string.IsNullOrWhiteSpace(processName))
+                            FF7 = Process.GetProcessesByName(processName).FirstOrDefault();
+
+                    }
+                    catch (Exception e)
+                    {
+                    }
+
+                    Thread.Sleep(250);
+                }
+
+                MemoryReader = new NativeMemoryReader(FF7);
+                Console.WriteLine("Found FF7");
+                if (null != Timer)
+                {
+                    Timer.Enabled = true;
+                }
+            }
+        }
+
         private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            var bytes = MemoryReader.ReadMemory(new IntPtr(0xDBFD38), 4342);
-            var isBattle = MemoryReader.ReadMemory(new IntPtr(0x9A8AF8), 1).First();
+            try
+            {
+                var bytes = MemoryReader.ReadMemory(new IntPtr(0xDBFD38), 4342);
+                var isBattle = MemoryReader.ReadMemory(new IntPtr(0x9A8AF8), 1).First();
+                var battle = MemoryReader.ReadMemory(new IntPtr(0x9AB0DC), 0x750);
+                var colors = MemoryReader.ReadMemory(new IntPtr(0x0091EFC8), 16);
 
 
-            var battle = MemoryReader.ReadMemory(new IntPtr(0x9AB0DC), 0x750);
-
-            var colors = MemoryReader.ReadMemory(new IntPtr(0x0091EFC8), 16);
-
-
-            SaveMap = new FF7SaveMap(ref bytes);
-            BattleMap = new FF7BattleMap(ref battle, isBattle);
+                SaveMap = new FF7SaveMap(ref bytes);
+                BattleMap = new FF7BattleMap(ref battle, isBattle);
 
 
-            SaveMap.TopLeft = $"{colors[0x2]:X2}{colors[0x1]:X2}{colors[0x0]:X2}";
-            SaveMap.BottomLeft = $"{colors[0x6]:X2}{colors[0x5]:X2}{colors[0x4]:X2}";
-            SaveMap.TopRight = $"{colors[0xA]:X2}{colors[0x9]:X2}{colors[0x8]:X2}";
-            SaveMap.BottomRight = $"{colors[0xE]:X2}{colors[0xD]:X2}{colors[0xC]:X2}";
+                SaveMap.TopLeft = $"{colors[0x2]:X2}{colors[0x1]:X2}{colors[0x0]:X2}";
+                SaveMap.BottomLeft = $"{colors[0x6]:X2}{colors[0x5]:X2}{colors[0x4]:X2}";
+                SaveMap.TopRight = $"{colors[0xA]:X2}{colors[0x9]:X2}{colors[0x8]:X2}";
+                SaveMap.BottomRight = $"{colors[0xE]:X2}{colors[0xD]:X2}{colors[0xC]:X2}";
 
-            PartyStatus = ExtractStatusFromMap(SaveMap, BattleMap);
+                PartyStatus = ExtractStatusFromMap(SaveMap, BattleMap);
+            }
+            catch (Exception ex)
+            {
+                SearchForProcess(ProcessName);
+            }
         }
 
         public static FF7BattleMap BattleMap { get; set; }
