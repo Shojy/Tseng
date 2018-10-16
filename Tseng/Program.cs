@@ -33,8 +33,9 @@ namespace Tseng
             LoadData();
 
             StartMonitoringGame();
-
             StartServer(args);
+
+            Console.ReadLine();
         }
 
         public static GameStatus ExtractStatusFromMap(FF7SaveMap map, FF7BattleMap battleMap)
@@ -188,19 +189,32 @@ namespace Tseng
             }
 
             Console.WriteLine($"Located FF7 process {FF7.ProcessName}");
+            if (Timer is null)
+            {
+                Timer = new Timer(500);
+                Timer.Elapsed += Timer_Elapsed;
+                Timer.AutoReset = true;
 
-            Timer = new Timer(1000);
-            Timer.Elapsed += Timer_Elapsed;
-            Timer.AutoReset = true;
 
-
-            Timer_Elapsed(null, null);
-            Timer.Start();
+                Timer_Elapsed(null, null);
+                Timer.Start();
+            }
         }
 
         private static void SearchForProcess(string processName)
         {
             Console.WriteLine("Searching...");
+            if (Timer is null)
+            {
+            Timer = new Timer(500);
+                Timer.Elapsed += Timer_Elapsed;
+                Timer.AutoReset = true;
+
+
+                Timer_Elapsed(null, null);
+                Timer.Start();
+
+            }
             lock (Timer)
             {
 
@@ -387,7 +401,9 @@ namespace Tseng
 
         private static void StartServer(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            var serverTask = CreateWebHostBuilder(args).Build().StartAsync();
+            Process.Start("http://localhost:5000");
+            serverTask.Wait();
         }
 
         private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
