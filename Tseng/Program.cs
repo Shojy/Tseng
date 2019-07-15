@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Timers;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Shojy.FF7.Elena;
+using Shojy.FF7.Elena.Equipment;
 using Tseng.Models;
+using Accessory = Tseng.Models.Accessory;
 using Timer = System.Timers.Timer;
+using Weapon = Tseng.Models.Weapon;
 
 namespace Tseng
 {
@@ -30,19 +29,150 @@ namespace Tseng
         public static GameStatus PartyStatus { get; set; }
         public static void Main(string[] args)
         {
-            LoadData();
+            LocateGameProcess();
 
+            LoadDataFromKernel();
             StartMonitoringGame();
             StartServer(args);
 
             Console.ReadLine();
         }
 
+        private static void LoadDataFromKernel()
+        {
+            if (FF7?.MainModule == null)
+            {
+                throw new Exception("FF7 Process MUST be discovered before data can be loaded");
+            }
+            var ff7Exe = FF7.MainModule?.FileName;
+            var ff7Folder = Path.GetDirectoryName(ff7Exe);
+            var kernelLocation = Path.Combine(ff7Folder, "data", "lang-en", "kernel", "KERNEL.BIN");
+
+            var elena = new KernelReader(kernelLocation);
+
+            // Map Elena's data into local data dbs.
+            foreach (var materia in elena.MateriaData.Materias)
+            {
+                var m = new Materia { Id = materia.Index, Name = materia.Name };
+                switch (materia.MateriaType)
+                {
+                    case Shojy.FF7.Elena.Materias.MateriaType.Command:
+                        m.Type = MateriaType.Command;
+                        break;
+                    case Shojy.FF7.Elena.Materias.MateriaType.Magic:
+                        m.Type = MateriaType.Magic;
+                        break;
+                    case Shojy.FF7.Elena.Materias.MateriaType.Summon:
+                        m.Type = MateriaType.Summon;
+                        break;
+                    case Shojy.FF7.Elena.Materias.MateriaType.Support:
+                        m.Type = MateriaType.Support;
+                        break;
+                    case Shojy.FF7.Elena.Materias.MateriaType.Independent:
+                        m.Type = MateriaType.Independent;
+                        break;
+                    default:
+                        m.Type = MateriaType.None;
+                        break;
+                }
+                MateriaDatabase.Add(m);
+            }
+
+            MateriaDatabase.Add(new Materia {Id = 255, Name = "Empty Slot", Type = MateriaType.None});
+
+            foreach (var wpn in elena.WeaponData.Weapons)
+            {
+                var w = new Weapon
+                {
+                    Name = wpn.Name,
+                    Id = wpn.Index,
+                    Growth = (int) wpn.GrowthRate,
+                    LinkedSlots = wpn.MateriaSlots.Count(slot =>
+                        slot == MateriaSlot.EmptyLeftLinkedSlot
+                        || slot == MateriaSlot.EmptyRightLinkedSlot
+                        || slot == MateriaSlot.NormalLeftLinkedSlot
+                        || slot == MateriaSlot.NormalRightLinkedSlot),
+                    SingleSlots = wpn.MateriaSlots.Count(slot =>
+                        slot == MateriaSlot.EmptyUnlinkedSlot
+                        || slot == MateriaSlot.NormalUnlinkedSlot)
+                };
+                // Work out what weapon icon to use
+                if ((wpn.EquipableBy & (EquipableBy.Cloud | EquipableBy.YoungCloud)) == wpn.EquipableBy)
+                {
+                    w.Type = WeaponType.Sword;
+                }
+                else if (wpn.EquipableBy == (wpn.EquipableBy & EquipableBy.Barret))
+                {
+                    w.Type = WeaponType.Arm;
+                }
+                else if (wpn.EquipableBy == (wpn.EquipableBy & EquipableBy.Tifa))
+                {
+                    w.Type = WeaponType.Glove;
+                }
+                else if (wpn.EquipableBy == (wpn.EquipableBy & EquipableBy.Aeris))
+                {
+                    w.Type = WeaponType.Staff;
+                }
+                else if (wpn.EquipableBy == (wpn.EquipableBy & EquipableBy.RedXIII))
+                {
+                    w.Type = WeaponType.Hairpin;
+                }
+                else if (wpn.EquipableBy == (wpn.EquipableBy & EquipableBy.Yuffie))
+                {
+                    w.Type = WeaponType.Shuriken;
+                }
+                else if (wpn.EquipableBy == (wpn.EquipableBy & EquipableBy.CaitSith))
+                {
+                    w.Type = WeaponType.Megaphone;
+                }
+                else if (wpn.EquipableBy == (wpn.EquipableBy & EquipableBy.Vincent))
+                {
+                    w.Type = WeaponType.Gun;
+                }
+                else if (wpn.EquipableBy == (wpn.EquipableBy & EquipableBy.Cid))
+                {
+                    w.Type = WeaponType.Pole;
+                }
+                else
+                {
+                    w.Type = WeaponType.Other;
+                }
+                WeaponDatabase.Add(w);
+            }
+
+            foreach (var arm in elena.ArmorData.Armors)
+            {
+                ArmletDatabase.Add(new Armlet
+                {
+                    Id = arm.Index,
+                    Name = arm.Name,
+                    Growth = (int)arm.GrowthRate,
+                    LinkedSlots = arm.MateriaSlots.Count(slot =>
+                        slot == MateriaSlot.EmptyLeftLinkedSlot
+                        || slot == MateriaSlot.EmptyRightLinkedSlot
+                        || slot == MateriaSlot.NormalLeftLinkedSlot
+                        || slot == MateriaSlot.NormalRightLinkedSlot),
+                    SingleSlots = arm.MateriaSlots.Count(slot =>
+                        slot == MateriaSlot.EmptyUnlinkedSlot
+                        || slot == MateriaSlot.NormalUnlinkedSlot)
+                });
+            }
+
+            foreach (var acc in elena.AccessoryData.Accessories)
+            {
+                AccessoryDatabase.Add(new Accessory
+                {
+                    Id = acc.Index,
+                    Name = acc.Name
+                });
+            }
+        }
+
         public static GameStatus ExtractStatusFromMap(FF7SaveMap map, FF7BattleMap battleMap)
         {
             var time = map.LiveTotalSeconds;
 
-            var t = $"{(time / 3600):00}:{((time%3600)/60):00}:{(time%60):00}";
+            var t = $"{(time / 3600):00}:{((time % 3600) / 60):00}:{(time % 60):00}";
             var status = new GameStatus()
             {
                 Gil = map.LiveGil,
@@ -164,31 +294,6 @@ namespace Tseng
 
         private static void StartMonitoringGame()
         {
-            var firstRun = true;
-            while (FF7 is null)
-            {
-                if (!firstRun)
-                {
-                    Console.WriteLine("Could not locate FF7. Is the game running?");
-                    Console.WriteLine("Press enter key to try again, or input process name if different to normal (Eg. ff7_en):");
-                    ProcessName = Console.ReadLine().Trim();
-                    if (!string.IsNullOrWhiteSpace(ProcessName))
-                    {
-                        FF7 = Process.GetProcessesByName(ProcessName).FirstOrDefault();
-                    }
-
-                    if (FF7 is null)
-                    {
-                        SearchForProcess(ProcessName);
-                    }
-                }
-                if (FF7 is null) FF7 = Process.GetProcessesByName("ff7_en").FirstOrDefault();
-                if (FF7 is null) FF7 = Process.GetProcessesByName("ff7").FirstOrDefault();
-                firstRun = false;
-
-            }
-
-            Console.WriteLine($"Located FF7 process {FF7.ProcessName}");
             if (Timer is null)
             {
                 Timer = new Timer(500);
@@ -201,12 +306,42 @@ namespace Tseng
             }
         }
 
+        private static void LocateGameProcess()
+        {
+            var firstRun = true;
+            while (FF7 is null)
+            {
+                if (!firstRun)
+                {
+                    Console.WriteLine("Could not locate FF7. Is the game running?");
+                    Console.WriteLine(
+                        "Press enter key to try again, or input process name if different to normal (Eg. ff7_en):");
+                    ProcessName = Console.ReadLine().Trim();
+                    if (!string.IsNullOrWhiteSpace(ProcessName))
+                    {
+                        FF7 = Process.GetProcessesByName(ProcessName).FirstOrDefault();
+                    }
+
+                    if (FF7 is null)
+                    {
+                        SearchForProcess(ProcessName);
+                    }
+                }
+
+                if (FF7 is null) FF7 = Process.GetProcessesByName("ff7_en").FirstOrDefault();
+                if (FF7 is null) FF7 = Process.GetProcessesByName("ff7").FirstOrDefault();
+                firstRun = false;
+            }
+
+            Console.WriteLine($"Located FF7 process {FF7.ProcessName}");
+        }
+
         private static void SearchForProcess(string processName)
         {
             Console.WriteLine("Searching...");
             if (Timer is null)
             {
-            Timer = new Timer(500);
+                Timer = new Timer(500);
                 Timer.Elapsed += Timer_Elapsed;
                 Timer.AutoReset = true;
 
@@ -279,125 +414,6 @@ namespace Tseng
         }
 
         public static FF7BattleMap BattleMap { get; set; }
-
-        private static void LoadData()
-        {
-            var direInfo = new DirectoryInfo("Data");
-            var dataDirectories = direInfo.EnumerateDirectories().ToArray();
-            DirectoryInfo selectedData;
-            if (dataDirectories.Length > 1)
-            {
-                Console.WriteLine("Multiple data versions found. Please enter the number of the set to use.");
-
-                for (var i = 0; i < dataDirectories.Length; ++i)
-                {
-                    Console.WriteLine($"{i + 1}. {dataDirectories[i].Name}");
-                }
-
-                var choice = -1;
-                do
-                {
-                    Console.Write("Enter choice: ");
-                } while (!int.TryParse(Console.ReadLine().Trim(), out choice) || choice <= 0 || choice > dataDirectories.Length);
-                selectedData = dataDirectories[choice - 1];
-
-            }
-            else
-            {
-                selectedData = dataDirectories.First();
-            }
-
-            if (!selectedData.Name.Equals("default", StringComparison.InvariantCultureIgnoreCase))
-            {
-                // Only need to load the base set if there's more than one option available.
-                MergeData(Path.Combine("Data", "default"));
-            }
-            MergeData(Path.Combine("Data", selectedData.Name));
-        }
-
-        private static void MergeData(string path)
-        {
-            Console.WriteLine($"Loading databases at {path}");
-            if (File.Exists(Path.Combine(path, "materia.json")))
-            {
-                using (var reader = new StreamReader(Path.Combine(path, "materia.json")))
-                {
-                    var db = JsonConvert.DeserializeObject<List<Materia>>(reader.ReadToEnd());
-
-                    foreach (var item in db)
-                    {
-                        var existingRecord = MateriaDatabase.FirstOrDefault(x => x.Id == item.Id);
-                        if (!(existingRecord is null))
-                        {
-                            MateriaDatabase.Remove(existingRecord);
-                        }
-
-                        MateriaDatabase.Add(item);
-                    }
-                    Console.WriteLine("Loaded Materia Database.");
-                }
-            }
-
-
-            if (File.Exists(Path.Combine(path, "weapons.json")))
-            {
-                using (var reader = new StreamReader(Path.Combine(path, "weapons.json")))
-                {
-                    var db = JsonConvert.DeserializeObject<List<Weapon>>(reader.ReadToEnd());
-                    foreach (var item in db)
-                    {
-                        var existingRecord = WeaponDatabase.FirstOrDefault(x => x.Id == item.Id);
-                        if (!(existingRecord is null))
-                        {
-                            WeaponDatabase.Remove(existingRecord);
-                        }
-
-                        WeaponDatabase.Add(item);
-                    }
-                    Console.WriteLine("Loaded Weapon Database.");
-                }
-            }
-
-
-            if (File.Exists(Path.Combine(path, "armlets.json")))
-            {
-                using (var reader = new StreamReader(Path.Combine(path, "armlets.json")))
-                {
-                    var db = JsonConvert.DeserializeObject<List<Armlet>>(reader.ReadToEnd());
-                    foreach (var item in db)
-                    {
-                        var existingRecord = ArmletDatabase.FirstOrDefault(x => x.Id == item.Id);
-                        if (!(existingRecord is null))
-                        {
-                            ArmletDatabase.Remove(existingRecord);
-                        }
-
-                        ArmletDatabase.Add(item);
-                    }
-                    Console.WriteLine("Loaded Armlet Database.");
-                }
-            }
-
-
-            if (File.Exists(Path.Combine(path, "accessories.json")))
-            {
-                using (var reader = new StreamReader(Path.Combine(path, "accessories.json")))
-                {
-                    var db = JsonConvert.DeserializeObject<List<Accessory>>(reader.ReadToEnd());
-                    foreach (var item in db)
-                    {
-                        var existingRecord = AccessoryDatabase.FirstOrDefault(x => x.Id == item.Id);
-                        if (!(existingRecord is null))
-                        {
-                            AccessoryDatabase.Remove(existingRecord);
-                        }
-
-                        AccessoryDatabase.Add(item);
-                    }
-                    Console.WriteLine("Loaded Accessory Database.");
-                }
-            }
-        }
 
         private static void StartServer(string[] args)
         {
