@@ -46,9 +46,10 @@ namespace Tseng
             }
             var ff7Exe = FF7.MainModule?.FileName;
             var ff7Folder = Path.GetDirectoryName(ff7Exe);
-            var kernelLocation = Path.Combine(ff7Folder, "data", "lang-en", "kernel", "KERNEL.BIN");
+            var kernelLocation = Path.Combine(ff7Folder, "data", "lang-en", "kernel");
 
-            var elena = new KernelReader(kernelLocation);
+            var elena = new KernelReader(Path.Combine(kernelLocation, "KERNEL.BIN"));
+            elena.MergeKernel2Data(Path.Combine(kernelLocation, "kernel2.bin"));
 
             // Map Elena's data into local data dbs.
             foreach (var materia in elena.MateriaData.Materias)
@@ -341,7 +342,7 @@ namespace Tseng
             Console.WriteLine("Searching...");
             if (Timer is null)
             {
-                Timer = new Timer(500);
+                Timer = new Timer(300);
                 Timer.Elapsed += Timer_Elapsed;
                 Timer.AutoReset = true;
 
