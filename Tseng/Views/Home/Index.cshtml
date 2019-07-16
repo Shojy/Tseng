@@ -1,509 +1,283 @@
-﻿
-<style>
-    .character {
-        float: left;
-        clear: both;
-        height: 175px;
-        padding-left: 20px;
-        width: 150%;
-    }
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Tseng</title>
+    <link rel="stylesheet" href="styles.css">
 
-    .portrait {
-        width: 150px;
-        float: left;
-    }
-
-        .portrait img {
-            width: 115px;
-        }
-
-        .portrait.backrow img {
-            float: right;
-        }
-
-    .stats {
-        float: left;
-        padding-left: 15px;
-    }
-
-    .aqua {
-        color: #2ce8df !important;
-    }
-
-    :not(.dead) .status {
-        color: #c71585 !important;
-    }
-
-    .hp-low .current-hp, .mp-low:not(.dead) .current-mp {
-        color: #ffa500;
-    }
-    
-
-    .slots {
-        top: -2px;
-        display: block;
-        padding: 2px;
-        list-style: none;
-        position: relative;
-        background: rgba(45, 45, 45, 0.4);
-        border-right: 1px rgba(180, 180, 180, 0.3) solid;
-        border-bottom: 1px rgba(180, 180, 180, 0.3) solid;
-        float: left;
-        clear: both;
-        width: 224px;
-        height: 22px;
-    }
-
-    .arm {
-        top: -8px;
-    }
-
-    .slots li {
-        display: inline-block;
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 28px;
-        height: 22px;
-        background-size: 28px 22px;
-        background-color: transparent;
-        list-style: none;
-        float: left;
-        position: relative;
-        background-image: url('/images/slots-single-normal.png');
-    }
-
-        .slots li img {
-            width: 18px;
-            height: 18px;
-            margin: 2px 5px !important;
-        }
-
-    .slots.no-growth li {
-        background-image: url('/images/slots-single-nothing.png');
-    }
-
-    .slots li.linked:nth-child(odd) {
-        background-image: url('/images/slots-linked-normal-left.png');
-    }
-
-    .slots li.linked:nth-child(even) {
-        background-image: url('/images/slots-linked-normal-right.png');
-    }
-
-    .slots.no-growth li.linked:nth-child(odd) {
-        background-image: url('/images/slots-linked-nothing-left.png');
-    }
-
-    .slots.no-growth li.linked:nth-child(even) {
-        background-image: url('/images/slots-linked-nothing-right.png');
-    }
-
-    .weapon, .armlet, .accessory {
-        line-height: 26px;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-        .weapon img, .armlet img, .accessory img {
-            height: 24px;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-    .base {
-        float: left;
-        clear: both;
-        width: 100%;
-    }
-
-    .gil, .time {
-        float: right;
-        text-align: right;
-    }
-
-    .time { clear: both;}
-
-    .location {
-        float: left;
-    }
-
-    .slide {
-        display: none;
-    }
-
-    .active-slide {
-        display: block;
-    }
-
-    .fixed {
-        display: inline-block;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 60px;
-    }
-
-    .ff7 .text .character.dead * {
-        color: #ab0000;
-    }
-
-    .ff7 {
-        clear: both;
-    }
-
-    .hidden {
-        visibility: hidden;
-    }
-
-    .status span {
-        display: none;
-    }
-
-    .rainbow {
-        animation: rainbow .5s infinite;
-    }
-
-    @@keyframes rainbow {
-        0% {
-            color: orange;
-        }
-
-        10% {
-            color: purple;
-        }
-
-        20% {
-            color: red;
-        }
-
-        40% {
-            color: yellow;
-        }
-
-        60% {
-            color: green;
-        }
-
-        80% {
-            color: blue;
-        }
-
-        100% {
-            color: orange;
-        }
-    }
-</style>
-
-
-<div class="ff7">
-    <div class="layer tl"></div>
-    <div class="layer bl"></div>
-    <div class="layer tr"></div>
-    <div class="layer br"></div>
-    <div class="layer border"></div>
-    <div class="text">
-        <div class="character">
-            <div class="portrait">
-                <img src="images/character-young-cloud.png" />
-            </div>
-            <div class="stats">
-                <span class="name">Cloud</span>
-                <span class="aqua">LV </span><span class="level">7</span> <span class="status"></span><br />
-                <span class="aqua">HP </span><span class="current-hp">334</span> / <span class="max-hp">356</span><br />
-                <span class="aqua">MP </span><span class="current-mp">34</span> / <span class="max-mp">56</span><br />
-                <div class="slide">
-                    <ul class="wpn slots">
-                        <li class="linked"></li>
-                        <li class="linked"></li>
-                    </ul>
-                    <ul class="arm slots">
-                        <li class=""></li>
-                    </ul>
-                </div>
-                <div class="slide active-slide">
-                    <span class="aqua fixed">Wpn. </span><span class="weapon"></span><br />
-                    <span class="aqua fixed">Arm. </span><span class="armlet"></span><br />
-                    <span class="aqua fixed">Acc. </span><span class="accessory"></span>
-                </div>
+</head>
+<body>
+    <div id="app">
+        <div class="ff7">
+            <div class="layer tl"></div>
+            <div class="layer bl"></div>
+            <div class="layer tr"></div>
+            <div class="layer br"></div>
+            <div class="layer border"></div>
+            <div class="text">
+                <app-character v-for="char in party" v-bind:key="char.character" v-bind:data="char" v-bind:slide="window.charSlide"></app-character>
             </div>
         </div>
-        <div class="character">
-            <div class="portrait">
-                <img src="images/character-young-cloud.png" />
-            </div>
-            <div class="stats">
-                <span class="name">Cloud</span>
-                <span class="aqua">LV </span><span class="level">7</span> <span class="status"></span><br />
-                <span class="aqua">HP </span><span class="current-hp">334</span> / <span class="max-hp">356</span><br />
-                <span class="aqua">MP </span><span class="current-mp">34</span> / <span class="max-mp">56</span><br />
-                <div class="slide">
-                    <ul class="wpn slots">
-                        <li class="linked"></li>
-                        <li class="linked"></li>
-                    </ul>
-                    <ul class="arm slots">
-                        <li class=""></li>
-                    </ul>
-                </div>
-                <div class="slide active-slide">
-                    <span class="aqua fixed">Wpn. </span><span class="weapon"></span><br />
-                    <span class="aqua fixed">Arm. </span><span class="armlet"></span><br />
-                    <span class="aqua fixed">Acc. </span><span class="accessory"></span>
-                </div>
-            </div>
-        </div>
-        <div class="character">
-            <div class="portrait">
-                <img src="images/character-young-cloud.png" />
-            </div>
-            <div class="stats">
-                <span class="name">Cloud</span>
-                <span class="aqua">LV </span><span class="level">7</span> <span class="status"></span><br />
-                <span class="aqua">HP </span><span class="current-hp">334</span> / <span class="max-hp">356</span><br />
-                <span class="aqua">MP </span><span class="current-mp">34</span> / <span class="max-mp">56</span><br />
-                <div class="slide">
-                    <ul class="wpn slots">
-                        <li class="linked"></li>
-                        <li class="linked"></li>
-                    </ul>
-                    <ul class="arm slots">
-                        <li class=""></li>
-                    </ul>
-                </div>
-                <div class="slide active-slide">
-                    <span class="aqua fixed">Wpn. </span><span class="weapon"></span><br />
-                    <span class="aqua fixed">Arm. </span><span class="armlet"></span><br />
-                    <span class="aqua fixed">Acc. </span><span class="accessory"></span>
+        <div class="ff7" style="top: 5px;">
+            <div class="layer tl"></div>
+            <div class="layer bl"></div>
+            <div class="layer tr"></div>
+            <div class="layer br"></div>
+            <div class="layer border"></div>
+            <div class="text">
+                <div class="base">
+                    <span class="location">{{window.location}}</span>
+                    <span class="gil">{{window.gil}} Gil</span>
+                    <span class="time">{{window.time}}</span>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<div class="ff7" style="top: 5px;">
-    <div class="layer tl"></div>
-    <div class="layer bl"></div>
-    <div class="layer tr"></div>
-    <div class="layer br"></div>
-    <div class="layer border"></div>
-    <div class="text">
-        <div class="base">
-            <span class="location"></span>
-            <span class="gil"></span>
-            <span class="time"></span>
-        </div>
-    </div>
-</div>
 
-
-<script>
-    var charStatus = [];
-    charStatus.push([]);
-    charStatus.push([]);
-    charStatus.push([]);
-
-    var updateCharacters = function () {
-        $.getJSON("/Home/Data",
-            null,
-            function (data) {
-                console.log(data);
-                $('.gil').text(data.gil + ' Gil');
-                $('.location').text(data.location);
-
-                for (var i = 0; i < 3; ++i) {
-                    var char = data.party[i];
-                    var ch = $('.character:nth-child(' + (i + 1) + ')');
-
-                    if (!char) {
-                        ch.addClass('hidden');
-                        continue;
-                    } else {
-                        ch.removeClass("hidden");
-                    }
-                    if (char.statusEffects.includes('Frog')) {
-                        ch.find(' .portrait')
-                            .html('<img src="/images/frog.jpg" />');
-                    }
-                    else {
-                        ch.find(' .portrait')
-                        .html('<img src="/images/character-' + char.face + '.png" />');
-                    }
-
-                    if (char.backRow) {
-                        ch.find('.portrait').addClass('backrow');
-                    } else {
-                        ch.find('.portrait').removeClass('backrow');
-
-                    }
-                    ch.find('.name').text(char.name);
-                    if (char.currentHp == 0) {
-                        ch.addClass('dead');
-                    } else {
-                        ch.removeClass('dead');
-                    }
-
-                    if (char.currentHp == 7777) {
-                        ch.find('.name').addClass('rainbow');
-                    } else {
-                        ch.find('.name').removeClass('rainbow');
-                    }
-
-                    ch.find('.level').text(char.level);
-                    ch.find('.current-hp').text(char.currentHp);
-
-                    if (char.currentHp > 0 && char.currentHp < char.maxHp / 4) {
-                        ch.addClass('hp-low');
-                    } else {
-                        ch.removeClass('hp-low');
-                    }
-
-
-                    if (char.currentMp < char.maxMp / 4) {
-                        ch.addClass('mp-low');
-                    } else {
-                        ch.removeClass('mp-low');
-                    }
-                    ch.find('.max-hp').text(char.maxHp);
-                    ch.find('.current-mp').text(char.currentMp);
-                    ch.find('.max-mp').text(char.maxMp);
-                    ch.find('.weapon')
-                        .html(
-                            '<img src="/images/weapon-'
-                            + char.weapon.weaponType.toLowerCase()
-                            + '.png" /> '
-                            + char.weapon.name);
-
-                    ch.find('.armlet')
-                        .html(
-                            '<img src="/images/armlet.png" /> '
-                            + char.armlet.name);
-
-                    if (char.accessory) {
-
-                        ch.find('.accessory')
-                            .html(
-                                '<img src="/images/accessory.png" /> ' + char.accessory.name);
-                    } else {
-                        ch.find('.accessory')
-                            .html('');
-                    }
-
-                    var wpn = ch.find('.wpn');
-
-                    if (char.weapon.growth === 0) {
-                        wpn.addClass('no-growth');
-                    } else {
-                        wpn.removeClass('no-growth');
-                    }
-
-                    wpn.html('');
-                    for (var j = 0; j < char.weapon.linkedSlots; ++j) {
-                        wpn.append('<li class="linked"></li>');
-                    }
-                    for (var j = 0; j < char.weapon.singleSlots; ++j) {
-                        wpn.append('<li></li>');
-                    }
-
-                    var arm = ch.find('.arm');
-
-                    if (char.armlet.growth === 0) {
-                        arm.addClass('no-growth');
-                    } else {
-                        arm.removeClass('no-growth');
-                    }
-                    arm.html('');
-                    for (var j = 0; j < char.armlet.linkedSlots; ++j) {
-                        arm.append('<li class="linked"></li>');
-                    }
-                    for (var j = 0; j < char.armlet.singleSlots; ++j) {
-                        arm.append('<li></li>');
-                    }
-                    for (var m = 0; m < 8; ++m) {
-                        var mat = char.weaponMateria[m];
-                        var slot = wpn.find(':nth-child(' + (m + 1) + ')');
-                        if (mat.typeName != "None") {
-                            slot.html('<img src="/images/materia-' + mat.typeName.toLowerCase() + '.png" />');
-                        } else {
-                            slot.html('');
-                        }
-                    }
-                    for (var m = 0; m < 8; ++m) {
-                        var mat = char.armletMateria[m];
-                        var slot = arm.find(':nth-child(' + (m + 1) + ')');
-                        if (mat.typeName != "None") {
-                            slot.html('<img src="/images/materia-' + mat.typeName.toLowerCase() + '.png" />');
-                        } else {
-                            slot.html('');
-                        }
-                    }
-
-                    charStatus[i] = char.statusEffects;
+    <script src="vue.js"></script>
+    <script src="axios.js"></script>
+    <script>
+        const baseWeapon = {
+            name: 'Buster Sword',
+            type: 'sword',
+            growth: 1,
+            slots: [
+                {
+                    type: 'linked',
+                    materia: 'magic'
+                },
+                {
+                    type: 'linked',
+                    materia: 'none'
                 }
+            ]
+        };
+        const baseArmor = {
+            name: 'Silver Armlet',
+            growth: 1,
+            slots: [
+                {
+                    type: 'linked',
+                    materia: 'magic'
+                },
+                {
+                    type: 'linked',
+                    materia: 'support'
+                },
+                {
+                    type: 'single',
+                    materia: 'summon'
+                },
+                {
+                    type: 'single',
+                    materia: 'command'
+                },
+            ]
+        };
+        const baseStats = {
+            level: 15,
+            currentHp: 500,
+            maxHp: 750,
+            currentMp: 70,
+            maxMp: 75,
+            status: []
+        };
+        const baseCharacter = {
+            name: 'Cloud',
+            character: 'young-cloud',
+            weapon: baseWeapon,
+            armor: baseArmor,
+            accessory: 'Tough Ring',
+            stats: baseStats,
+            row: 'back',
+            statusIndex: 0
+        };
 
-
-
-                /*
-                 *
-                 *             .ff7 .tl {
-                background: linear-gradient(to top left, rgba(0,0,176, 0) 50%, rgba(0,0,176, 1));
-            }
-
-            .ff7 .tr {
-                background: radial-gradient(farthest-side at top right, rgba(0, 0, 80, 1), rgba(0, 0, 80, 0));
-            }
-
-            .ff7 .bl {
-                background: radial-gradient(farthest-side at bottom left, rgba(0, 0, 128, 1), rgba(0, 0, 128, 0));
-            }
-
-            .ff7 .br {
-                background: linear-gradient(to bottom right, rgba(0, 0, 32, 0) 50%, rgba(0, 0, 32, 1));
-            }
-                 */
-
-                $('.ff7 .layer.tl').css('background','linear-gradient(to top left, rgba(0,0,176, 0) 50%, #' +data.colorTopLeft +')');
-
-                $('.ff7 .layer.tr').css('background','radial-gradient(farthest-side at top right, #'+data.colorTopRight+', rgba(0, 0, 80, 0))');
-
-                $('.ff7 .layer.bl').css('background','radial-gradient(farthest-side at bottom left, #' + data.colorBottomLeft + ', rgba(0, 0, 128, 0))');
-
-                $('.ff7 .layer.br').css('background','linear-gradient(to bottom right, rgba(0, 0, 32, 0) 50%, #' + data.colorBottomRight + ')');
-
-                $('.time').html(data.timeActive);
-            })
-            .always(function () {
-
-                setTimeout(updateCharacters, 500);
+        Vue.component('app-materia', {
+            props: ['type'],
+            template: `
+            <img v-if="type !== 'none'" v-bind:src="'images/materia-' + type + '.png'">
+            `
+        })
+        Vue.component('app-character',
+            {
+                props: ['data', 'slide'],
+                template: `<div class="character">
+    <div v-if="!!data">
+        <div v-bind:class="data.row + 'row portrait'">
+            <img v-bind:src="'images/character-' + data.character + '.png'" />
+        </div>
+        <div class="stats">
+            <span v-bind:class="'name ' + (data.stats.currentHp == 0? 'dead ' : '') + (data.stats.currentHp == 7777? 'rainbow ' : '')">{{data.name}}</span>
+            <span class="aqua">LV </span><span class="level">{{data.stats.level}}</span> <span class="status"></span>
+            <span class="status" v-if="data.stats.status.length > 0"> {{data.stats.status[data.statusIndex]}}</span><br />
+            <span class="aqua">HP </span><span v-bind:class="'current-hp ' + (data.stats.currentHp > 0 && data.stats.currentHp < data.stats.maxHp / 4? 'hp-low' : '')">{{data.stats.currentHp}}</span> / <span class="max-hp">{{data.stats.maxHp}}</span><br />
+            <span class="aqua">MP </span><span class="current-mp">{{data.stats.currentMp}}</span> / <span class="max-mp">{{data.stats.maxMp}}</span><br />
+            <div class="slide active-slide" v-if="slide === 'materia'">
+                <ul v-bind:class="'wpn slots ' + (data.weapon.growth === 0? 'no-growth' : '')">
+                    <li v-for="slot in data.weapon.slots" v-bind:class="slot.type"><app-materia v-bind:type="slot.materia"></app-materia></li>
+                </ul>
+                <ul v-bind:class="'arm slots ' + (data.armor.growth === 0? 'no-growth' : '')">
+                    <li v-for="slot in data.armor.slots" v-bind:class="slot.type"><app-materia v-bind:type="slot.materia"></app-materia></li>
+                </ul>
+            </div>
+            <div class="slide acive-slide" v-if="slide === 'equip'">
+                <span class="aqua fixed">Wpn. </span>
+                <span class="weapon">
+                    <img v-bind:src="'images/weapon-' + data.weapon.type + '.png'">
+                    {{data.weapon.name}}
+                </span><br />
+                <span class="aqua fixed">Arm. </span>
+                <span class="armlet">
+                        <img src="images/armlet.png">
+                    {{data.armor.name}}
+                </span><br />
+                <span class="aqua fixed">Acc. </span>
+                <span class="accessory"><img src="images/accessory.png" v-if="!!data.accessory"> {{data.accessory}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+`
             });
-    }
 
-    var cycleView = function () {
-        $('.slide').toggleClass('active-slide');
 
-        setTimeout(cycleView, 5000);
-    };
+        const slides = ['equip', 'materia'];
+        let slideIndex = 0;
 
-    var index = 0;
 
-    var cycleStatus = function () {
-        for (var i = 0; i < 3; ++i) {
-            if (charStatus[i].length == 0 || charStatus[i][index % charStatus[i].length] == 'None') {
-                $('.character:nth-child(' + (i + 1) + ') .status').html('');
-            } else {
-                $('.character:nth-child(' + (i + 1) + ') .status').html(charStatus[i][index % charStatus[i].length]);
+
+
+        let app = new Vue({
+            el: '#app',
+            data: {
+                party: [
+                    {...baseCharacter, name: 'Barret', character: 'barret'},
+                    {...baseCharacter, name: 'Vincent', character: 'vincent'},
+                    baseCharacter,
+                ],
+                window: {
+                    time: '10:54:23',
+                    gil: 1700,
+                    location: 'Fort Condor',
+                    charSlide: 'equip'
+                },
+                colors: {
+                    topLeft: '#007300',
+                    topRight: '#004B00',
+                    bottomLeft: '#004F00',
+                    bottomRight: '#001600'
+                }
             }
+        });
 
+
+        var rotateSlide = function() {
+            if(++slideIndex >= slides.length) {
+                slideIndex = 0;
+            }
+            app.window.charSlide = slides[slideIndex];
+            setTimeout(rotateSlide, 3000);
         }
-        ++index;
-        if (index > 0 && index == charStatus[0].length * charStatus[1].length * charStatus[2].length) index = 0; // prevent overflowing
+        var updateCheck = function () {
+            axios
+                .get('http://localhost:5000/Home/Data')
+                .then(d => {
+                    app.window.time = d.data.timeActive;
+                    app.window.gil = d.data.gil;
+                    app.window.location = d.data.location;
+                    const chars = [];
 
-        setTimeout(cycleStatus, 1000);
-    }
+                    for (let c = 0; c < d.data.party.length; ++c) {
+                        const character = d.data.party[c];
+                        if (!!character) {
+                            const char = {
+                                name: character.name,
+                                character: character.face,
+                                weapon: {
+                                    name: character.weapon.name,
+                                    type: character.weapon.weaponType.toLowerCase(),
+                                    growth: character.weapon.growth,
+                                    slots: []
+                                },
+                                armor: {
+                                    name: character.armlet.name,
+                                    growth: character.armlet.growth,
+                                    slots: []
+                                },
+                                accessory: !! character.accessory? character.accessory.name : '',
+                                stats: {
+                                    currentHp: character.currentHp,
+                                    maxHp: character.maxHp,
+                                    currentMp: character.currentMp,
+                                    maxMp: character.maxMp,
+                                    level: character.level,
+                                    status: character.statusEffects,
+                                },
+                                row: character.backRow ? 'back' : 'front',
+                                statusIndex: app.party[c].statusIndex < character.statusEffects.length? app.party[c].statusIndex : 0
 
+                            };
 
-    $(document).ready(function () {
-        updateCharacters();
+                            for (let slot = 0;
+                                slot < character.weapon.linkedSlots + character.weapon.singleSlots;
+                                ++slot) {
+                                char.weapon.slots.push({
+                                    type: slot < character.weapon.linkedSlots ? 'linked' : 'single',
+                                    materia: character.weaponMateria[slot].typeName.toLowerCase()
+                                });
+                            }
+                            for (let slot = 0;
+                                slot < character.armlet.linkedSlots + character.armlet.singleSlots;
+                                ++slot) {
+                                char.armor.slots.push({
+                                    type: slot < character.armlet.linkedSlots ? 'linked' : 'single',
+                                    materia: character.armletMateria[slot].typeName.toLowerCase()
+                                });
+                            }
+                            chars.push(char);
+                        } else {
+                            chars.push(false);
+                        }
+
+                    }
+
+                    app.party = chars;
+
+                    document.querySelectorAll(".ff7 .tl").forEach(e => e.style.background =
+                        'linear-gradient(to top left, rgba(0,0,176, 0) 50%, #' + d.data.colorTopLeft + ')');
+
+                    document.querySelectorAll(".ff7 .tr").forEach(e => e.style.background =
+                        'radial-gradient(farthest-side at top right, #' + d.data.colorTopRight + ', rgba(0, 0, 80, 0))');
+
+                    document.querySelectorAll(".ff7 .bl").forEach(e => e.style.background =
+                        'radial-gradient(farthest-side at bottom left, #' + d.data.colorBottomLeft + ', rgba(0, 0, 128, 0))');
+
+                    document.querySelectorAll(".ff7 .br").forEach(e => e.style.background =
+                        'linear-gradient(to bottom right, rgba(0, 0, 32, 0) 50%, #' + d.data.colorBottomRight+ ')');
+                });
+
+            setTimeout(updateCheck, 300);
+        }
+        cycleStatus = function() {
+            for (let i = 0; i < 3; ++i) {
+                let index = app.party[i].statusIndex +1;
+                if (index >= app.party[i].stats.status.length) {
+                    index = 0;
+                }
+                app.party[i].statusIndex = index;
+            }
+            setTimeout(cycleStatus, 1000);
+        }
 
         cycleStatus();
-
-        setTimeout(cycleView, 5000);
-    });
-</script>
+        updateCheck();
+        rotateSlide();
+    </script>
+</body>
+</html>
