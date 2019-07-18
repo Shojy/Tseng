@@ -14,20 +14,12 @@
 <body>
     <div id="app">
         <div class="ff7">
-            <div class="layer tl"></div>
-            <div class="layer bl"></div>
-            <div class="layer tr"></div>
-            <div class="layer br"></div>
             <div class="layer border"></div>
             <div class="text">
                 <app-character v-for="char in party" v-bind:key="char.character" v-bind:data="char" v-bind:slide="window.charSlide"></app-character>
             </div>
         </div>
         <div class="ff7" style="top: 5px;">
-            <div class="layer tl"></div>
-            <div class="layer bl"></div>
-            <div class="layer tr"></div>
-            <div class="layer br"></div>
             <div class="layer border"></div>
             <div class="text">
                 <div class="base">
@@ -249,17 +241,10 @@
 
                     app.party = chars;
 
-                    document.querySelectorAll(".ff7 .tl").forEach(e => e.style.background =
-                        'linear-gradient(to top left, rgba(0,0,176, 0) 50%, #' + d.data.colorTopLeft + ')');
-
-                    document.querySelectorAll(".ff7 .tr").forEach(e => e.style.background =
-                        'radial-gradient(farthest-side at top right, #' + d.data.colorTopRight + ', rgba(0, 0, 80, 0))');
-
-                    document.querySelectorAll(".ff7 .bl").forEach(e => e.style.background =
-                        'radial-gradient(farthest-side at bottom left, #' + d.data.colorBottomLeft + ', rgba(0, 0, 128, 0))');
-
-                    document.querySelectorAll(".ff7 .br").forEach(e => e.style.background =
-                        'linear-gradient(to bottom right, rgba(0, 0, 32, 0) 50%, #' + d.data.colorBottomRight+ ')');
+                    document.querySelectorAll(".ff7 .layer").forEach(e => e.style.background =
+                        `linear-gradient(to top left, rgba(0,0,176, 0) 50%, #${d.data.colorTopLeft}), radial-gradient(farthest-side at top right, #${d.data.colorTopRight
+                        }, rgba(0, 0, 80, 0)), radial-gradient(farthest-side at bottom left, #${d.data.colorBottomLeft
+                        }, rgba(0, 0, 128, 0)), linear-gradient(to bottom right, rgba(0, 0, 32, 0) 50%, #${d.data.colorBottomRight})`);
                 });
 
             setTimeout(updateCheck, 300);
