@@ -39,9 +39,9 @@ namespace Tseng.GameData
         {
             get
             {
-                int seconds = _map[0xBB6];
-                seconds = seconds + (_map[0xBB5] * 60);
-                seconds = seconds + (_map[0xBB4] * 3600);
+                int seconds = _map[SaveMapOffsets.PlayTimeSeconds];
+                seconds += _map[SaveMapOffsets.PlayTimeMinutes] * 60;
+                seconds += _map[SaveMapOffsets.PlayTimeHours] * 3600;
                 return seconds;
             }
         }
@@ -94,7 +94,7 @@ namespace Tseng.GameData
             }
         }
 
-        public int LiveTotalSeconds => BitConverter.ToInt32(_map, SaveMapOffsets.PlayTime);
+        public int LiveTotalSeconds => BitConverter.ToInt32(_map, SaveMapOffsets.NumberOfSecondsPlayed);
         public short LocID => BitConverter.ToInt16(_map, 0xB96);
         public short MapID => BitConverter.ToInt16(_map, 0xB94);
         public short PartyGP => BitConverter.ToInt16(_map, SaveMapOffsets.GP);
@@ -227,7 +227,7 @@ namespace Tseng.GameData
             characterRecord.Weapon = map[offset + SaveMapCharacterOffsets.EquipedWeapon];
             characterRecord.Armor = map[offset + SaveMapCharacterOffsets.EquipedArmor];
             characterRecord.Accessory = map[offset + SaveMapCharacterOffsets.EquipedAccessory];
-            characterRecord.Flags = map[offset + SaveMapCharacterOffsets.Row];
+            characterRecord.Flags = map[offset + SaveMapCharacterOffsets.StatusFlags];
             characterRecord.AtFront = map[offset + SaveMapCharacterOffsets.Row] == 0xFF;
             characterRecord.LevelProgress = map[offset + 0x21];
             characterRecord.LimitMask = BitConverter.ToInt16(map, offset + SaveMapCharacterOffsets.LimitBreaks);

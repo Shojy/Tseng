@@ -41,8 +41,16 @@
         public const int StolenMateriaStock = 0xA9C;
 
         public const int Gil = 0xB7C;
-        public const int PlayTime = 0xB80;
+        public const int NumberOfSecondsPlayed = 0xB80;
         public const int CountdownTime = 0xB84;
+
+        public const int PlayTimeHours = 0xBB4;
+        public const int PlayTimeMinutes = 0xBB5;
+        public const int PlayTimeSeconds = 0xBB6;
+
+        public const int CountdownHours = 0xBB8;
+        public const int CountdownMinutes = 0xBB9;
+        public const int CountdownSeconds = 0xBBA;
 
         public const int PhsLockMask = 0x10A4;
         public const int PhsVisibilityMask = 0x10A6;
