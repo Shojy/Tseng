@@ -1,16 +1,20 @@
-﻿using System;
+﻿using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+using Shojy.FF7.Elena;
+using Shojy.FF7.Elena.Equipment;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Timers;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Shojy.FF7.Elena;
-using Shojy.FF7.Elena.Equipment;
+using Tseng.Constants;
+using Tseng.GameData;
+using Tseng.lib;
 using Tseng.Models;
 using Accessory = Tseng.Models.Accessory;
+using Character = Tseng.GameData.Character;
 using Timer = System.Timers.Timer;
 using Weapon = Tseng.Models.Weapon;
 
@@ -18,15 +22,149 @@ namespace Tseng
 {
     public class Program
     {
+        #region Public Properties
+
+        public static List<Accessory> AccessoryDatabase { get; set; } = new List<Accessory>();
+        public static List<Armlet> ArmletDatabase { get; set; } = new List<Armlet>();
+        public static FF7BattleMap BattleMap { get; set; }
+        public static List<Materia> MateriaDatabase { get; set; } = new List<Materia>();
+        public static GameStatus PartyStatus { get; set; }
+        public static List<Weapon> WeaponDatabase { get; set; } = new List<Weapon>();
+
+        #endregion Public Properties
+
+        #region Private Properties
+
         private static Process FF7 { get; set; }
         private static NativeMemoryReader MemoryReader { get; set; }
-        private static Timer Timer { get; set; }
+        private static string ProcessName { get; set; }
         private static FF7SaveMap SaveMap { get; set; }
-        public static List<Materia> MateriaDatabase { get; set; } = new List<Materia>();
-        public static List<Weapon> WeaponDatabase { get; set; } = new List<Weapon>();
-        public static List<Armlet> ArmletDatabase { get; set; } = new List<Armlet>();
-        public static List<Accessory> AccessoryDatabase { get; set; } = new List<Accessory>();
-        public static GameStatus PartyStatus { get; set; }
+        private static Timer Timer { get; set; }
+
+        #endregion Private Properties
+
+        #region Public Methods
+
+        public static GameStatus ExtractStatusFromMap(FF7SaveMap map, FF7BattleMap battleMap)
+        {
+            var time = map.LiveTotalSeconds;
+
+            var t = $"{(time / 3600):00}:{((time % 3600) / 60):00}:{(time % 60):00}";
+
+            var status = new GameStatus()
+            {
+                Gil = map.LiveGil,
+                Location = map.LiveMapName,
+                Party = new Models.Character[3],
+                ActiveBattle = battleMap.IsActiveBattle,
+                ColorTopLeft = map.WindowColorTopLeft,
+                ColorBottomLeft = map.WindowColorBottomLeft,
+                ColorBottomRight = map.WindowColorBottomRight,
+                ColorTopRight = map.WindowColorTopRight,
+                TimeActive = t
+            };
+            var party = battleMap.Party;
+
+            var chars = map.LiveParty;
+
+            for (var index = 0; index < chars.Length; ++index)
+            {
+                // Skip empty party
+                if (chars[index].Id == 0xFF) continue;
+
+                var chr = new Models.Character()
+                {
+                    MaxHp = chars[index].MaxHp,
+                    MaxMp = chars[index].MaxMp,
+                    CurrentHp = chars[index].CurrentHp,
+                    CurrentMp = chars[index].CurrentMp,
+                    Name = chars[index].Name,
+                    Level = chars[index].Level,
+                    Weapon = WeaponDatabase.FirstOrDefault(w => w.Id == chars[index].Weapon),
+                    Armlet = ArmletDatabase.FirstOrDefault(a => a.Id == chars[index].Armor),
+                    Accessory = AccessoryDatabase.FirstOrDefault(a => a.Id == chars[index].Accessory),
+                    WeaponMateria = new Materia[8],
+                    ArmletMateria = new Materia[8],
+                    Face = GetFaceForCharacter(chars[index]),
+                    BackRow = !chars[index].AtFront,
+                };
+
+                for (var m = 0; m < chars[index].WeaponMateria.Length; ++m)
+                {
+                    chr.WeaponMateria[m] = MateriaDatabase.FirstOrDefault(x => x.Id == chars[index].WeaponMateria[m]);
+                }
+                for (var m = 0; m < chars[index].ArmorMateria.Length; ++m)
+                {
+                    chr.ArmletMateria[m] = MateriaDatabase.FirstOrDefault(x => x.Id == chars[index].ArmorMateria[m]);
+                }
+
+                var effect = (StatusEffect)chars[index].Flags;
+
+                if (battleMap.IsActiveBattle)
+                {
+                    chr.CurrentHp = party[index].CurrentHp;
+                    chr.MaxHp = party[index].MaxHp;
+                    chr.CurrentMp = party[index].CurrentMp;
+                    chr.MaxMp = party[index].MaxMp;
+                    chr.Level = party[index].Level;
+                    effect = party[index].Status;
+                    chr.BackRow = party[index].IsBackRow;
+                }
+
+                var effs = effect.ToString()
+                    .Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
+                    .ToList();
+                effs.RemoveAll(x => new[] { "None", "Death" }.Contains(x));
+                chr.StatusEffects = effs.ToArray();
+                status.Party[index] = chr;
+            }
+
+            return status;
+        }
+
+        public static string GetFaceForCharacter(CharacterRecord chr)
+        {
+            // TODO: Abstract magic string names behind variable set that's also used for image extraction
+            switch (chr.Character)
+            {
+                case Character.Cloud:
+                    return "cloud";
+
+                case Character.Barret:
+                    return "barret";
+
+                case Character.Tifa:
+                    return "tifa";
+
+                case Character.Aeris:
+                    return "aeris";
+
+                case Character.RedXIII:
+                    return "red-xiii";
+
+                case Character.Yuffie:
+                    return "yuffie";
+
+                case Character.CaitSith:
+                    return "cait-sith";
+
+                case Character.Vincent:
+                    return "vincent";
+
+                case Character.Cid:
+                    return "cid";
+
+                case Character.YoungCloud:
+                    return "young-cloud";
+
+                case Character.Sephiroth:
+                    return "sephiroth";
+
+                default:
+                    return "";
+            }
+        }
+
         public static void Main(string[] args)
         {
             LocateGameProcess();
@@ -37,6 +175,15 @@ namespace Tseng
 
             Console.ReadLine();
         }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseKestrel(opts => opts.ListenAnyIP(5000))
+                .UseStartup<Startup>();
 
         private static void LoadDataFromKernel()
         {
@@ -60,18 +207,23 @@ namespace Tseng
                     case Shojy.FF7.Elena.Materias.MateriaType.Command:
                         m.Type = MateriaType.Command;
                         break;
+
                     case Shojy.FF7.Elena.Materias.MateriaType.Magic:
                         m.Type = MateriaType.Magic;
                         break;
+
                     case Shojy.FF7.Elena.Materias.MateriaType.Summon:
                         m.Type = MateriaType.Summon;
                         break;
+
                     case Shojy.FF7.Elena.Materias.MateriaType.Support:
                         m.Type = MateriaType.Support;
                         break;
+
                     case Shojy.FF7.Elena.Materias.MateriaType.Independent:
                         m.Type = MateriaType.Independent;
                         break;
+
                     default:
                         m.Type = MateriaType.None;
                         break;
@@ -79,7 +231,7 @@ namespace Tseng
                 MateriaDatabase.Add(m);
             }
 
-            MateriaDatabase.Add(new Materia {Id = 255, Name = "Empty Slot", Type = MateriaType.None});
+            MateriaDatabase.Add(new Materia { Id = 255, Name = "Empty Slot", Type = MateriaType.None });
 
             foreach (var wpn in elena.WeaponData.Weapons)
             {
@@ -87,7 +239,7 @@ namespace Tseng
                 {
                     Name = wpn.Name,
                     Id = wpn.Index,
-                    Growth = (int) wpn.GrowthRate,
+                    Growth = (int)wpn.GrowthRate,
                     LinkedSlots = wpn.MateriaSlots.Count(slot =>
                         slot == MateriaSlot.EmptyLeftLinkedSlot
                         || slot == MateriaSlot.EmptyRightLinkedSlot
@@ -169,144 +321,6 @@ namespace Tseng
             }
         }
 
-        public static GameStatus ExtractStatusFromMap(FF7SaveMap map, FF7BattleMap battleMap)
-        {
-            var time = map.LiveTotalSeconds;
-
-            var t = $"{(time / 3600):00}:{((time % 3600) / 60):00}:{(time % 60):00}";
-            var status = new GameStatus()
-            {
-                Gil = map.LiveGil,
-                Location = map.LiveMapName,
-                Party = new Character[3],
-                ActiveBattle = battleMap.IsActiveBattle,
-                ColorTopLeft = map.TopLeft,
-                ColorBottomLeft = map.BottomLeft,
-                ColorBottomRight = map.BottomRight,
-                ColorTopRight = map.TopRight,
-                TimeActive = t
-            };
-            var party = battleMap.Party;
-
-            var chars = map.LiveParty;
-
-
-            for (var i = 0; i < chars.Length; ++i)
-            {
-                // Skip empty party
-                if (chars[i].ID == 0xFF) continue;
-
-                var chr = new Character()
-                {
-                    MaxHp = chars[i].MaxHP,
-                    MaxMp = chars[i].MaxMP,
-                    CurrentHp = chars[i].HP,
-                    CurrentMp = chars[i].MP,
-                    Name = chars[i].Name,
-                    Level = chars[i].Level,
-                    Weapon = WeaponDatabase.FirstOrDefault(w => w.Id == chars[i].Weapon),
-                    Armlet = ArmletDatabase.FirstOrDefault(a => a.Id == chars[i].Armor),
-                    Accessory = AccessoryDatabase.FirstOrDefault(a => a.Id == chars[i].Accessory),
-                    WeaponMateria = new Materia[8],
-                    ArmletMateria = new Materia[8],
-                    Face = GetFaceForCharacter(chars[i]),
-                    BackRow = !chars[i].AtFront,
-
-                };
-
-
-
-                for (var m = 0; m < chars[i].WeaponMateria.Length; ++m)
-                {
-                    chr.WeaponMateria[m] = MateriaDatabase.FirstOrDefault(x => x.Id == chars[i].WeaponMateria[m]);
-                }
-                for (var m = 0; m < chars[i].ArmorMateria.Length; ++m)
-                {
-                    chr.ArmletMateria[m] = MateriaDatabase.FirstOrDefault(x => x.Id == chars[i].ArmorMateria[m]);
-                }
-
-                var effect = (StatusEffect)chars[i].Flags;
-
-                if (battleMap.IsActiveBattle)
-                {
-                    chr.CurrentHp = party[i].CurrentHp;
-                    chr.MaxHp = party[i].MaxHp;
-                    chr.CurrentMp = party[i].CurrentMp;
-                    chr.MaxMp = party[i].MaxMp;
-                    chr.Level = party[i].Level;
-                    effect = party[i].Status;
-                    chr.BackRow = party[i].IsBackRow;
-                }
-
-
-                var effs = effect.ToString()
-                    .Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
-                    .ToList();
-                effs.RemoveAll(x => new[] { "None", "Death" }.Contains(x));
-                chr.StatusEffects = effs.ToArray();
-                status.Party[i] = chr;
-            }
-
-            return status;
-        }
-
-        public static string GetFaceForCharacter(FF7SaveMap.Character chr)
-        {
-            switch (chr.DefaultName)
-            {
-                case "Cloud":
-                    return "cloud";
-
-                case "Barrett":
-                    return "barret";
-
-                case "Tifa":
-                    return "tifa";
-
-                case "Aerith":
-                    return "aeris";
-
-                case "Red XIII":
-                    return "red-xiii";
-
-                case "Yuffie":
-                    return "yuffie";
-
-                case "Cait Sith":
-                    return "cait-sith";
-
-                case "Vincent":
-                    return "vincent";
-
-                case "Cid":
-                    return "cid";
-
-                case "Young Cloud":
-                    return "young-cloud";
-
-                case "Sephiroth":
-                    return "sephiroth";
-                default:
-                    return "";
-            }
-        }
-
-        private static string ProcessName { get; set; }
-
-        private static void StartMonitoringGame()
-        {
-            if (Timer is null)
-            {
-                Timer = new Timer(500);
-                Timer.Elapsed += Timer_Elapsed;
-                Timer.AutoReset = true;
-
-
-                Timer_Elapsed(null, null);
-                Timer.Start();
-            }
-        }
-
         private static void LocateGameProcess()
         {
             var firstRun = true;
@@ -317,7 +331,9 @@ namespace Tseng
                     Console.WriteLine("Could not locate FF7. Is the game running?");
                     Console.WriteLine(
                         "Press enter key to try again, or input process name if different to normal (Eg. ff7_en):");
-                    ProcessName = Console.ReadLine().Trim();
+
+                    ProcessName = Console.ReadLine()?.Trim();
+
                     if (!string.IsNullOrWhiteSpace(ProcessName))
                     {
                         FF7 = Process.GetProcessesByName(ProcessName).FirstOrDefault();
@@ -346,15 +362,11 @@ namespace Tseng
                 Timer.Elapsed += Timer_Elapsed;
                 Timer.AutoReset = true;
 
-
                 Timer_Elapsed(null, null);
                 Timer.Start();
-
             }
             lock (Timer)
             {
-
-
                 if (null != Timer)
                 {
                     Timer.Enabled = false;
@@ -369,7 +381,6 @@ namespace Tseng
                         if (FF7 is null) FF7 = Process.GetProcessesByName("ff7").FirstOrDefault();
                         if (FF7 is null && !string.IsNullOrWhiteSpace(processName))
                             FF7 = Process.GetProcessesByName(processName).FirstOrDefault();
-
                     }
                     catch (Exception e)
                     {
@@ -387,24 +398,42 @@ namespace Tseng
             }
         }
 
+        private static void StartMonitoringGame()
+        {
+            if (Timer is null)
+            {
+                Timer = new Timer(500);
+                Timer.Elapsed += Timer_Elapsed;
+                Timer.AutoReset = true;
+
+                Timer_Elapsed(null, null);
+                Timer.Start();
+            }
+        }
+
+        private static void StartServer(string[] args)
+        {
+            var serverTask = CreateWebHostBuilder(args).Build().StartAsync();
+            Process.Start("http://localhost:5000");
+            serverTask.Wait();
+        }
+
         private static void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             try
             {
-                var bytes = MemoryReader.ReadMemory(new IntPtr(0xDBFD38), 4342);
-                var isBattle = MemoryReader.ReadMemory(new IntPtr(0x9A8AF8), 1).First();
-                var battle = MemoryReader.ReadMemory(new IntPtr(0x9AB0DC), 0x750);
-                var colors = MemoryReader.ReadMemory(new IntPtr(0x0091EFC8), 16);
+                var saveMapByteData = MemoryReader.ReadMemory(new IntPtr(Addresses.SaveMapStart), 4342);
+                var isBattle = MemoryReader.ReadMemory(new IntPtr(Addresses.ActiveBattleState), 1).First();
+                var battleMapByteData = MemoryReader.ReadMemory(new IntPtr(Addresses.BattleMapStart), 0x750);
+                var colors = MemoryReader.ReadMemory(new IntPtr(Addresses.WindowColorBlockStart), 16);
 
+                SaveMap = new FF7SaveMap(saveMapByteData);
+                BattleMap = new FF7BattleMap(battleMapByteData, isBattle);
 
-                SaveMap = new FF7SaveMap(ref bytes);
-                BattleMap = new FF7BattleMap(ref battle, isBattle);
-
-
-                SaveMap.TopLeft = $"{colors[0x2]:X2}{colors[0x1]:X2}{colors[0x0]:X2}";
-                SaveMap.BottomLeft = $"{colors[0x6]:X2}{colors[0x5]:X2}{colors[0x4]:X2}";
-                SaveMap.TopRight = $"{colors[0xA]:X2}{colors[0x9]:X2}{colors[0x8]:X2}";
-                SaveMap.BottomRight = $"{colors[0xE]:X2}{colors[0xD]:X2}{colors[0xC]:X2}";
+                SaveMap.WindowColorTopLeft = $"{colors[0x2]:X2}{colors[0x1]:X2}{colors[0x0]:X2}";
+                SaveMap.WindowColorBottomLeft = $"{colors[0x6]:X2}{colors[0x5]:X2}{colors[0x4]:X2}";
+                SaveMap.WindowColorTopRight = $"{colors[0xA]:X2}{colors[0x9]:X2}{colors[0x8]:X2}";
+                SaveMap.WindowColorBottomRight = $"{colors[0xE]:X2}{colors[0xD]:X2}{colors[0xC]:X2}";
 
                 PartyStatus = ExtractStatusFromMap(SaveMap, BattleMap);
             }
@@ -414,18 +443,6 @@ namespace Tseng
             }
         }
 
-        public static FF7BattleMap BattleMap { get; set; }
-
-        private static void StartServer(string[] args)
-        {
-            var serverTask = CreateWebHostBuilder(args).Build().StartAsync();
-            Process.Start("http://localhost:5000");
-            serverTask.Wait();
-        }
-
-        private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseKestrel(opts => opts.ListenAnyIP(5000))
-                .UseStartup<Startup>();
+        #endregion Private Methods
     }
 }
